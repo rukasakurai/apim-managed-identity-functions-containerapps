@@ -12,6 +12,6 @@ infra:
 # Services configuration
 services:
   function:
-    project: ./
+    project: ./hello-function
     language: python
     host: function
