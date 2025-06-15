@@ -18,6 +18,9 @@ param publisherEmail string
 @description('Publisher name for API Management service')
 param publisherName string
 
+@description('The clientId of the Entra app registration for the Function App')
+param functionAppAppId string
+
 // Variables
 var uniqueSuffix = substring(uniqueString(resourceGroup().id), 0, 6)
 var resourceToken = '${resourcePrefix}-${environmentName}-${uniqueSuffix}'
@@ -119,6 +122,21 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           name: 'AzureWebJobsStorage'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
         }
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          // value: appInsights.properties.InstrumentationKey
+          // Application Insights is commented out
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          // value: appInsights.properties.ConnectionString
+          // Application Insights is commented out
+        }
+        {
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          // value: '~3'
+          // Application Insights is commented out
+        }
       ]
       cors: {
         allowedOrigins: ['*']
@@ -130,6 +148,38 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
     }
     httpsOnly: true
     publicNetworkAccess: 'Enabled'
+  }
+  dependsOn: [
+    // appInsights // Application Insights is commented out
+    // hostingPlan // Removed unnecessary dependsOn
+    // storageAccount // Removed unnecessary dependsOn
+  ]
+}
+
+// Authentication settings for the Function App (Entra app registration)
+resource funcAuth 'Microsoft.Web/sites/config@2024-04-01' = {
+  parent: functionApp
+  name: 'authsettingsV2'
+  properties: {
+    globalValidation: {
+      requireAuthentication: true
+    }
+    platform: {
+      enabled: true
+    }
+    identityProviders: {
+      azureActiveDirectory: {
+        registration: {
+          clientId: functionAppAppId
+          openIdIssuer: 'https://sts.windows.net/${tenant().tenantId}/'
+        }
+        validation: {
+          allowedAudiences: [
+            'api://${functionAppAppId}'
+          ]
+        }
+      }
+    }
   }
 }
 
@@ -238,24 +288,7 @@ resource helloOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/p
   parent: helloOperation
   name: 'policy'
   properties: {
-    value: '''
-<policies>
-  <inbound>
-    <base />
-    <set-backend-service backend-id="function-backend" />
-  </inbound>
-  <backend>
-    <base />
-  </backend>
-  <outbound>
-    <base />
-  </outbound>
-  <on-error>
-    <base />
-  </on-error>
-</policies>
-'''
-    format: 'xml'
+    value: '<policies>\n  <inbound>\n    <authentication-managed-identity resource="api://${functionAppAppId}" output-token-variable-name="accessToken" />\n    <set-header name="Authorization" exists-action="override">\n      <value>@("Bearer " + context.Variables["accessToken"])</value>\n    </set-header>\n    <set-backend-service backend-id="function-backend" />\n  </inbound>\n  <backend><base /></backend>\n  <outbound><base /></outbound>\n  <on-error><base /></on-error>\n</policies>'
   }
   dependsOn: [
     functionBackend
@@ -280,6 +313,21 @@ resource apiProduct 'Microsoft.ApiManagement/service/products/apis@2024-05-01' =
   parent: apimProduct
   name: functionApi.name
 }
+
+// Application Insights for monitoring
+/*
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: '${resourceToken}-ai'
+  location: location
+  tags: tags
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    Flow_Type: 'Bluefield'
+    WorkspaceResourceId: '' // Not using Log Analytics workspace
+  }
+}
+*/
 
 // Outputs
 @description('The name of the Function App')

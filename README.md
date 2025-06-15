@@ -1,5 +1,28 @@
 # apim-managed-identity-functions-containerapps
 
+## Prerequisites
+
+Before running `azd up`, you must create an Entra ID (Azure AD) app registration for your Azure Function authentication.
+
+### Steps
+
+1. **Create an App Registration**
+
+   - Go to [Azure Portal > Microsoft Entra ID > App registrations](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade).
+   - Click **New registration**.
+   - Enter a name (e.g., `my-functionapp-auth`).
+   - Leave the default account type: **Accounts in this organizational directory only (Single tenant)**.
+   - Leave Redirect URI blank.
+   - Click **Register**.
+
+2. **Copy the Application (client) ID**
+
+   - After registration, go to the app’s overview page.
+   - Copy the **Application (client) ID**.
+
+3. **Run `azd up`**
+   - When prompted for the `functionAppAppId` parameter, paste the Application (client) ID you copied above.
+
 ## Quick Start
 
 1. **Provision & Deploy**
