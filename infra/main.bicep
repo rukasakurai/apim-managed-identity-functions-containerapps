@@ -184,7 +184,15 @@ resource functionBackend 'Microsoft.ApiManagement/service/backends@2024-05-01' =
     description: 'Backend for Azure Function App'
     url: 'https://${functionApp.properties.defaultHostName}'
     protocol: 'http'
+    type: 'Pool'
     resourceId: '${environment().resourceManager}${functionApp.id}'
+    pool: {
+      services: [
+        {
+          id: '${environment().resourceManager}${functionApp.id}'
+        }
+      ]
+    }
     tls: {
       validateCertificateChain: true
       validateCertificateName: true
