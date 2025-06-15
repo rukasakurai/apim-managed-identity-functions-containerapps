@@ -1,0 +1,33 @@
+name: Bicep Validation
+
+# Trigger the workflow on every push to any branch
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  bicep-validation:
+    name: Validate Bicep Templates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+        shell: bash
+
+      - name: Install Bicep CLI
+        run: |
+          az bicep install
+          az bicep version
+
+      - name: Lint Bicep files
+        run: |
+          echo "Running Bicep linter..."
+          az bicep lint --file infra/main.bicep
+          echo "✅ Bicep linting completed"

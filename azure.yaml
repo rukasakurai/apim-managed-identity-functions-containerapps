@@ -1,0 +1,17 @@
+# azure.yaml schema: https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: apim-functions-app
+metadata:
+  template: apim-functions-app@0.0.1-beta
+
+# Deployment configuration
+infra:
+  provider: bicep
+  path: infra
+
+# Services configuration
+services:
+  function:
+    project: ./
+    language: python
+    host: function
