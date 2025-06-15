@@ -162,6 +162,125 @@ resource apimService 'Microsoft.ApiManagement/service@2024-05-01' = {
   }
 }
 
+// Role assignment to allow APIM to invoke Functions using managed identity
+resource apimToFunctionRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: functionApp
+  name: guid(functionApp.id, apimService.id, 'Website Contributor')
+  properties: {
+    principalId: apimService.identity.principalId
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'de139f84-1756-47ae-9be6-808fbbe84772'
+    ) // Website Contributor role
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Backend configuration for the Azure Function
+resource functionBackend 'Microsoft.ApiManagement/service/backends@2024-05-01' = {
+  parent: apimService
+  name: 'function-backend'
+  properties: {
+    description: 'Backend for Azure Function App'
+    url: 'https://${functionApp.properties.defaultHostName}/api'
+    protocol: 'http'
+    resourceId: '${environment().resourceManager}${functionApp.id}'
+    tls: {
+      validateCertificateChain: true
+      validateCertificateName: true
+    }
+  }
+  dependsOn: [
+    apimToFunctionRoleAssignment
+  ]
+}
+
+// API definition for the Function App
+resource functionApi 'Microsoft.ApiManagement/service/apis@2024-05-01' = {
+  parent: apimService
+  name: 'hello-function-api'
+  properties: {
+    displayName: 'Hello Function API'
+    description: 'API for Azure Function hello world endpoint'
+    serviceUrl: 'https://${functionApp.properties.defaultHostName}/api'
+    path: 'hello-api'
+    protocols: ['https']
+    subscriptionRequired: false // Disable subscription key requirement
+    apiType: 'http'
+  }
+}
+
+// Operation for the hello endpoint
+resource helloOperation 'Microsoft.ApiManagement/service/apis/operations@2024-05-01' = {
+  parent: functionApi
+  name: 'hello-get'
+  properties: {
+    displayName: 'Get Hello World'
+    method: 'GET'
+    urlTemplate: '/hello'
+    description: 'Returns hello world message from Azure Function'
+    responses: [
+      {
+        statusCode: 200
+        description: 'Success'
+        representations: [
+          {
+            contentType: 'text/plain'
+          }
+        ]
+      }
+    ]
+  }
+}
+
+// Policy for the hello operation to use the function backend
+resource helloOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-05-01' = {
+  parent: helloOperation
+  name: 'policy'
+  properties: {
+    value: '''
+<policies>
+  <inbound>
+    <base />
+    <set-backend-service backend-id="function-backend" />
+  </inbound>
+  <backend>
+    <base />
+  </backend>
+  <outbound>
+    <base />
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
+'''
+    format: 'xml'
+  }
+  dependsOn: [
+    functionBackend
+  ]
+}
+
+// API Management Product for publishing the API (open access, no subscription required)
+resource apimProduct 'Microsoft.ApiManagement/service/products@2024-05-01' = {
+  parent: apimService
+  name: 'open-product'
+  properties: {
+    displayName: 'Open Product'
+    description: 'Product for public/open APIs (no subscription required)'
+    terms: ''
+    subscriptionRequired: false
+    state: 'published'
+  }
+}
+
+// Add the API to the product (correct parent and name)
+resource apiProduct 'Microsoft.ApiManagement/service/products/apis@2024-05-01' = {
+  parent: apimProduct
+  name: functionApi.name
+}
+
 // Outputs
 @description('The name of the Function App')
 output functionAppName string = functionApp.name
@@ -195,3 +314,15 @@ output storageAccountName string = storageAccount.name
 
 @description('The resource ID of the storage account')
 output storageAccountId string = storageAccount.id
+
+@description('The URL to access the hello API through APIM')
+output helloApiUrl string = '${apimService.properties.gatewayUrl}/hello-api/hello'
+
+@description('The name of the Function API in APIM')
+output functionApiName string = functionApi.name
+
+@description('The name of the Function backend in APIM')
+output functionBackendName string = functionBackend.name
+
+@description('The resource ID of the resource group')
+output RESOURCE_GROUP_ID string = resourceGroup().id
