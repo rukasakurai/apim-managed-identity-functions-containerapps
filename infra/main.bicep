@@ -162,6 +162,123 @@ resource apimService 'Microsoft.ApiManagement/service@2024-05-01' = {
   }
 }
 
+// Role assignment to allow APIM to invoke Functions using managed identity
+resource apimToFunctionRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: functionApp
+  name: guid(functionApp.id, apimService.id, 'Website Contributor')
+  properties: {
+    principalId: apimService.identity.principalId
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'de139f84-1756-47ae-9be6-808fbbe84772'
+    ) // Website Contributor role
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Backend configuration for the Azure Function
+resource functionBackend 'Microsoft.ApiManagement/service/backends@2024-05-01' = {
+  parent: apimService
+  name: 'function-backend'
+  properties: {
+    description: 'Backend for Azure Function App'
+    url: 'https://${functionApp.properties.defaultHostName}'
+    protocol: 'http'
+    resourceId: '${environment().resourceManager}${functionApp.id}'
+    credentials: {
+      header: {
+        'x-functions-key': ['{{function-key}}']
+      }
+    }
+    tls: {
+      validateCertificateChain: true
+      validateCertificateName: true
+    }
+  }
+  dependsOn: [
+    functionKeyNamedValue
+    apimToFunctionRoleAssignment
+  ]
+}
+
+// API definition for the Function App
+resource functionApi 'Microsoft.ApiManagement/service/apis@2024-05-01' = {
+  parent: apimService
+  name: 'hello-function-api'
+  properties: {
+    displayName: 'Hello Function API'
+    description: 'API for Azure Function hello world endpoint'
+    serviceUrl: 'https://${functionApp.properties.defaultHostName}/api'
+    path: 'hello-api'
+    protocols: ['https']
+    subscriptionRequired: true
+    apiType: 'http'
+  }
+}
+
+// Operation for the hello endpoint
+resource helloOperation 'Microsoft.ApiManagement/service/apis/operations@2024-05-01' = {
+  parent: functionApi
+  name: 'hello-get'
+  properties: {
+    displayName: 'Get Hello World'
+    method: 'GET'
+    urlTemplate: '/hello'
+    description: 'Returns hello world message from Azure Function'
+    responses: [
+      {
+        statusCode: 200
+        description: 'Success'
+        representations: [
+          {
+            contentType: 'text/plain'
+          }
+        ]
+      }
+    ]
+  }
+}
+
+// Named value to store function key
+resource functionKeyNamedValue 'Microsoft.ApiManagement/service/namedValues@2024-05-01' = {
+  parent: apimService
+  name: 'function-key'
+  properties: {
+    displayName: 'function-key'
+    secret: true
+    value: listKeys('${functionApp.id}/host/default/', '2024-04-01').masterKey
+  }
+}
+
+// Policy for the hello operation to use the function backend
+resource helloOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-05-01' = {
+  parent: helloOperation
+  name: 'policy'
+  properties: {
+    value: '''
+<policies>
+  <inbound>
+    <base />
+    <set-backend-service backend-id="function-backend" />
+  </inbound>
+  <backend>
+    <base />
+  </backend>
+  <outbound>
+    <base />
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
+'''
+    format: 'xml'
+  }
+  dependsOn: [
+    functionBackend
+  ]
+}
+
 // Outputs
 @description('The name of the Function App')
 output functionAppName string = functionApp.name
@@ -195,3 +312,15 @@ output storageAccountName string = storageAccount.name
 
 @description('The resource ID of the storage account')
 output storageAccountId string = storageAccount.id
+
+@description('The URL to access the hello API through APIM')
+output helloApiUrl string = '${apimService.properties.gatewayUrl}/hello-api/hello'
+
+@description('The name of the Function API in APIM')
+output functionApiName string = functionApi.name
+
+@description('The name of the Function backend in APIM')
+output functionBackendName string = functionBackend.name
+
+@description('The resource ID of the resource group')
+output RESOURCE_GROUP_ID string = resourceGroup().id
