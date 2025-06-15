@@ -271,7 +271,6 @@ resource apimProduct 'Microsoft.ApiManagement/service/products@2024-05-01' = {
     description: 'Product for public/open APIs (no subscription required)'
     terms: ''
     subscriptionRequired: false
-    approvalRequired: false
     state: 'published'
   }
 }
