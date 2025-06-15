@@ -185,18 +185,12 @@ resource functionBackend 'Microsoft.ApiManagement/service/backends@2024-05-01' =
     url: 'https://${functionApp.properties.defaultHostName}'
     protocol: 'http'
     resourceId: '${environment().resourceManager}${functionApp.id}'
-    credentials: {
-      header: {
-        'x-functions-key': ['{{function-key}}']
-      }
-    }
     tls: {
       validateCertificateChain: true
       validateCertificateName: true
     }
   }
   dependsOn: [
-    functionKeyNamedValue
     apimToFunctionRoleAssignment
   ]
 }
@@ -211,7 +205,7 @@ resource functionApi 'Microsoft.ApiManagement/service/apis@2024-05-01' = {
     serviceUrl: 'https://${functionApp.properties.defaultHostName}/api'
     path: 'hello-api'
     protocols: ['https']
-    subscriptionRequired: true
+    subscriptionRequired: false // Disable subscription key requirement
     apiType: 'http'
   }
 }
@@ -236,17 +230,6 @@ resource helloOperation 'Microsoft.ApiManagement/service/apis/operations@2024-05
         ]
       }
     ]
-  }
-}
-
-// Named value to store function key
-resource functionKeyNamedValue 'Microsoft.ApiManagement/service/namedValues@2024-05-01' = {
-  parent: apimService
-  name: 'function-key'
-  properties: {
-    displayName: 'function-key'
-    secret: true
-    value: listKeys('${functionApp.id}/host/default/', '2024-04-01').masterKey
   }
 }
 
@@ -277,6 +260,26 @@ resource helloOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/p
   dependsOn: [
     functionBackend
   ]
+}
+
+// API Management Product for publishing the API (open access, no subscription required)
+resource apimProduct 'Microsoft.ApiManagement/service/products@2024-05-01' = {
+  parent: apimService
+  name: 'open-product'
+  properties: {
+    displayName: 'Open Product'
+    description: 'Product for public/open APIs (no subscription required)'
+    terms: ''
+    subscriptionRequired: false
+    approvalRequired: false
+    state: 'published'
+  }
+}
+
+// Add the API to the product (correct parent and name)
+resource apiProduct 'Microsoft.ApiManagement/service/products/apis@2024-05-01' = {
+  parent: apimProduct
+  name: functionApi.name
 }
 
 // Outputs
