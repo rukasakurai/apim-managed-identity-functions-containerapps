@@ -1,5 +1,6 @@
 #!/bin/bash
 # This script fetches the APIM managed identity client ID and updates the Function App's Easy Auth allowedClientApplications
+echo "Running set-easyauth-allowed-client-applications.sh script..."
 
 set -e
 
