@@ -117,3 +117,7 @@ curl "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -
 ## Troubleshooting
 
 If you encounter issues during deployment or testing, please refer to [`troubleshooting.md`](./troubleshooting.md)
+
+## Contributing
+
+We welcome [Issues](../../issues) and [Pull Requests](../../pulls)! No guarantee of acceptance - this is a demo repository. See [Contributing Guidelines](CONTRIBUTING.md).
