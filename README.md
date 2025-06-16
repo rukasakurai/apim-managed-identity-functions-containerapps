@@ -1,5 +1,24 @@
 # apim-managed-identity-functions-containerapps
 
+> ⚠️ **Warning**: This repository is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns for integrating Azure Functions with API Management using managed identities. Before using any code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
+
+This repository demonstrates how to securely expose Azure Functions behind Azure API Management (APIM) using managed identities and Microsoft Entra ID (Azure AD) authentication. It provides an end-to-end solution for:
+
+- Deploying an Azure Function (Python) with Bicep infrastructure-as-code
+- Integrating API Management (APIM) as a secure gateway to the function
+- Enabling authentication using Entra ID app registrations
+- Assigning and configuring managed identities and app roles for secure, identity-based access
+- Automating setup with scripts for role assignment and Easy Auth configuration
+
+The solution is ideal for scenarios where you want to:
+
+- Protect Azure Functions from direct public access
+- Use APIM as a secure, authenticated entry point
+- Leverage managed identities for secure, passwordless communication between APIM and Azure Functions
+- Automate infrastructure and security configuration with Bicep and scripts
+
+The repository includes all necessary Bicep templates, scripts, and documentation to provision, configure, and test the integration end-to-end.
+
 ## Quick Start
 
 ### Create App Registration for Azure Function Authentication
