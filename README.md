@@ -36,16 +36,15 @@ If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`)
 1. **Obtain the Client ID of the APIM Managed Identity**
 
    - Go to [Azure Portal > API Management > Your APIM instance > Identity](https://portal.azure.com/).
-   - Under **System assigned managed identity** or **User assigned managed identities**, copy the **Object (principal) ID** or **Client ID** (use the **Client ID** for this setting).
+   - Under **System assigned managed identity** or **User assigned managed identities**, copy the **Object (principal) ID**
+   - Go to your Enterprise Application section of Entra and search for the copied Object ID, and get the Client ID
 
 2. **Set Allowed Client Applications in Azure Function Authentication**
    - Go to [Azure Portal > Function App > Your Function App > Authentication](https://portal.azure.com/).
    - Click on your authentication provider (e.g., **Microsoft** under **Identity providers**).
    - Under **Access control** (or **Advanced settings**), find the **Allowed client applications** field.
-   - Paste the **Client ID** of your APIM managed identity into the list. If there are multiple allowed client applications, separate each Client ID with a comma.
+   - Paste the **Client ID** of your APIM managed identity into the list.
    - Save your changes.
-
-> **Note:** The official term is **Allowed client applications** under **App Service Authentication** (also known as **Easy Auth**). The value should be the **Client ID** of the managed identity assigned to your API Management instance.
 
 ### Test
 
