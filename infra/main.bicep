@@ -21,9 +21,6 @@ param publisherName string
 @description('The clientId of the Entra app registration for the Function App')
 param functionAppAppId string
 
-@description('Client ID (appId) of the APIM managed identity')
-param apimClientId string
-
 // Variables
 var uniqueSuffix = substring(uniqueString(resourceGroup().id), 0, 6)
 var resourceToken = '${resourcePrefix}-${environmentName}-${uniqueSuffix}'
@@ -180,11 +177,7 @@ resource funcAuth 'Microsoft.Web/sites/config@2024-04-01' = {
           allowedAudiences: [
             '${functionAppAppId}'
           ]
-          jwtClaimChecks: {
-            allowedClientApplications: [
-              apimClientId
-            ]
-          }
+          // jwtClaimChecks.allowedClientApplications will be set post-provision
         }
       }
     }

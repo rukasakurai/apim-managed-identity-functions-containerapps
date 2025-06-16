@@ -19,4 +19,6 @@ services:
 hooks:
   postprovision:
     shell: sh
-    run: ./scripts/assign-apim-mi-to-functionapp-app-role.sh
+    run: |
+      ./scripts/assign-apim-mi-to-functionapp-app-role.sh
+      ./scripts/set-easyauth-allowed-client-applications.sh
