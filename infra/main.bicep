@@ -31,16 +31,9 @@ param deployFunctions bool = true
 @description('The clientId of the Entra app registration for the Function App')
 param functionAppAppId string = ''
 
-// Container Apps parameters (future)
-@description('Deploy Container Apps')
-param deployContainerApps bool = false
-
 // Integration parameters
 @description('Integrate Functions with APIM')
 param integrateFunctionsWithApim bool = true
-
-@description('Integrate Container Apps with APIM')
-param integrateContainerAppsWithApim bool = false
 
 // Variables
 var apimServiceName = deployApim ? apimModule.outputs.apimServiceName : existingApimServiceName
@@ -68,20 +61,6 @@ module functionsModule 'modules/functions/main.bicep' = if (deployFunctions) {
   }
 }
 
-// Role assignment for APIM to Functions
-resource apimToFunctionRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployFunctions && (deployApim || existingApimServiceName != '')) {
-  scope: resourceGroup()
-  name: guid(resourceGroup().id, apimServiceName, functionsModule.outputs.functionAppId, 'Website Contributor')
-  properties: {
-    principalId: deployApim ? apimModule.outputs.apimPrincipalId : reference(resourceId('Microsoft.ApiManagement/service', existingApimServiceName), '2024-05-01', 'Full').identity.principalId
-    roleDefinitionId: subscriptionResourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      'de139f84-1756-47ae-9be6-808fbbe84772'
-    ) // Website Contributor role
-    principalType: 'ServicePrincipal'
-  }
-}
-
 // Integrate Functions with APIM
 module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = if (integrateFunctionsWithApim && deployFunctions && (deployApim || existingApimServiceName != '')) {
   name: 'functions-apim-integration'
@@ -96,9 +75,6 @@ module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = 
     backendAppId: functionAppAppId
     backendName: 'hello-function'
   }
-  dependsOn: [
-    apimToFunctionRoleAssignment
-  ]
 }
 
 // Outputs
@@ -106,13 +82,19 @@ module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = 
 output apimServiceName string = deployApim ? apimModule.outputs.apimServiceName : existingApimServiceName
 
 @description('APIM Gateway URL')
-output apimGatewayUrl string = deployApim ? apimModule.outputs.apimGatewayUrl : reference(resourceId('Microsoft.ApiManagement/service', existingApimServiceName), '2024-05-01').properties.gatewayUrl
+output apimGatewayUrl string = deployApim
+  ? apimModule.outputs.apimGatewayUrl
+  : reference(resourceId('Microsoft.ApiManagement/service', existingApimServiceName), '2024-05-01').properties.gatewayUrl
 
 @description('APIM Service ID')
-output apimServiceId string = deployApim ? apimModule.outputs.apimServiceId : resourceId('Microsoft.ApiManagement/service', existingApimServiceName)
+output apimServiceId string = deployApim
+  ? apimModule.outputs.apimServiceId
+  : resourceId('Microsoft.ApiManagement/service', existingApimServiceName)
 
 @description('APIM Principal ID')
-output apimPrincipalId string = deployApim ? apimModule.outputs.apimPrincipalId : reference(resourceId('Microsoft.ApiManagement/service', existingApimServiceName), '2024-05-01', 'Full').identity.principalId
+output apimPrincipalId string = deployApim
+  ? apimModule.outputs.apimPrincipalId
+  : reference(resourceId('Microsoft.ApiManagement/service', existingApimServiceName), '2024-05-01', 'Full').identity.principalId
 
 @description('Function App Name')
 output functionAppName string = deployFunctions ? functionsModule.outputs.functionAppName : ''
@@ -148,4 +130,6 @@ output RESOURCE_GROUP_ID string = resourceGroup().id
 output FUNC_EASYAUTH_APP_ID string = functionAppAppId
 
 @description('APIM Managed Identity Client ID')
-output APIM_MI_CLIENTID string = deployApim ? apimModule.outputs.apimPrincipalId : reference(resourceId('Microsoft.ApiManagement/service', existingApimServiceName), '2024-05-01', 'Full').identity.principalId
+output APIM_MI_CLIENTID string = deployApim
+  ? apimModule.outputs.apimPrincipalId
+  : reference(resourceId('Microsoft.ApiManagement/service', existingApimServiceName), '2024-05-01', 'Full').identity.principalId
