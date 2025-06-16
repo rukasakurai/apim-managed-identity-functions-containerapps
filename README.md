@@ -1,10 +1,10 @@
 # apim-managed-identity-functions-containerapps
 
-## Prerequisites
+## Quick Start
+
+### Create App Registration for Azure Function Authentication
 
 Before running `azd up`, you must create an Entra ID (Azure AD) app registration for your Azure Function authentication.
-
-### Steps
 
 1. **Create an App Registration**
 
@@ -23,15 +23,33 @@ Before running `azd up`, you must create an Entra ID (Azure AD) app registration
 3. **Run `azd up`**
    - When prompted for the `functionAppAppId` parameter, paste the Application (client) ID you copied above.
 
-## Quick Start
-
-1. **Provision & Deploy**
+### Provision & Deploy
 
 ```sh
 azd up
 ```
 
-2. **Test the Azure Function**
+### Manually Configure Allowed Client Applications for Azure Functions Authentication
+
+If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`) is not working, you can manually configure the **Allowed client applications** for Azure App Service Authentication (Easy Auth) on your Azure Function. This is required to allow your API Management (APIM) instance (using its managed identity) to call the Azure Function when App Service Authentication is enabled.
+
+1. **Obtain the Client ID of the APIM Managed Identity**
+
+   - Go to [Azure Portal > API Management > Your APIM instance > Identity](https://portal.azure.com/).
+   - Under **System assigned managed identity** or **User assigned managed identities**, copy the **Object (principal) ID** or **Client ID** (use the **Client ID** for this setting).
+
+2. **Set Allowed Client Applications in Azure Function Authentication**
+   - Go to [Azure Portal > Function App > Your Function App > Authentication](https://portal.azure.com/).
+   - Click on your authentication provider (e.g., **Microsoft** under **Identity providers**).
+   - Under **Access control** (or **Advanced settings**), find the **Allowed client applications** field.
+   - Paste the **Client ID** of your APIM managed identity into the list. If there are multiple allowed client applications, separate each Client ID with a comma.
+   - Save your changes.
+
+> **Note:** The official term is **Allowed client applications** under **App Service Authentication** (also known as **Easy Auth**). The value should be the **Client ID** of the managed identity assigned to your API Management instance.
+
+### Test
+
+#### Test the Azure Function
 
 After deployment, test the function:
 
@@ -39,15 +57,15 @@ After deployment, test the function:
 curl "https://$FUNCTION_APP_NAME.azurewebsites.net/api/hello?code=$MASTER_KEY"
 ```
 
-**Expected Response:** `Hello, world!`
-
-### One-liner for quick testing:
+or
 
 ```sh
-curl "https://$(azd env get-values | grep "functionAppName" | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello?code=$(az functionapp keys list --name $(azd env get-values | grep "functionAppName" | cut -d'=' -f2 | tr -d '"') --resource-group $(azd env get-values | grep "AZURE_RESOURCE_GROUP" | cut -d'=' -f2 | tr -d '"') --query "masterKey" -o tsv)"
+curl "https://$(azd env get-values | grep "functionAppName" | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
 ```
 
-3. **Test the Azure API Management endpoint**
+**Expected Response:** Error (Not `Hello, world!`)
+
+#### Test the Azure API Management endpoint
 
 After deployment, test the API Management endpoint:
 
