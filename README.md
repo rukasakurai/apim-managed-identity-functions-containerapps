@@ -39,7 +39,12 @@ Before running `azd up`, you must create an Entra ID (Azure AD) app registration
    - After registration, go to the app’s overview page.
    - Copy the **Application (client) ID**.
 
-3. **Run `azd up`**
+3. **Set the Application ID URI**
+
+- Got to **Expose an API** in the Portal
+- Edit the **Application ID URI** and set it to `api://<Application (client) ID>`
+
+4. **Run `azd up`**
    - When prompted for the `functionAppAppId` parameter, paste the Application (client) ID you copied above.
 
 ### Provision & Deploy
