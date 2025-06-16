@@ -33,6 +33,14 @@ sequenceDiagram
 
 ## Troubleshooting
 
+### 401 Unauthorized
+
+Incorrect settings in the Inbound processing policy settings can cause this. Updates to the policy can take some time to take effect (e.g., 1 minute).
+
+### 403 Forbidden
+
+This can happen when the Client ID of the Azure API Management is not set in `Allowed client applications` in the Azure Function App's Authentication settings (Easy Auth).
+
 ### 500 Internal Server Error
 
 #### AADSTS500011
