@@ -2,21 +2,21 @@
 
 ## Sequence Diagram: Managed Identity JWT Flow
 
-Below is a sequence diagram representing the architecture flow from the provided image, showing how APIM, Azure AD, App Registration, Managed Identities, and the Function App interact:
+Below is a sequence diagram representing the architecture flow from the provided image, showing how APIM, Microsoft Entra ID, App Registration, Managed Identities, and the Function App interact:
 
 ```mermaid
 sequenceDiagram
     participant Client
     participant APIM as API Management
-    participant AAD as Azure AD
+    participant Entra as Microsoft Entra ID
     participant MI as User Assigned Managed Identity
     participant Function as Azure Function (Private)
 
     Client->>APIM: Call API
-    APIM->>AAD: Request JWT
-    AAD-->>APIM: Return JWT
+    APIM->>Entra: Request JWT
+    Entra-->>APIM: Return JWT
     APIM->>Function: Forward request with JWT
-    Function->>AAD: Validate JWT
+    Function->>Entra: Validate JWT
     alt JWT is valid and for trusted MI
         Function-->>APIM: Success Response
         APIM-->>Client: Success Response
@@ -47,13 +47,13 @@ This can happen when the Application ID URI for the App Registration for the Aut
 sequenceDiagram
     participant Client
     participant APIM as API Management
-    participant AAD as Azure AD
+    participant Entra as Microsoft Entra ID
     participant MI as User Assigned Managed Identity
     participant Function as Azure Function (Private)
 
     Client->>APIM: Call API
-    APIM->>AAD: Request JWT
-    AAD-->>APIM: AADSTS500011 Error (Resource Principal Not Found)
+    APIM->>Entra: Request JWT
+    Entra-->>APIM: AADSTS500011 Error (Resource Principal Not Found)
     APIM-->>Client: 500 Internal Server Error
 ```
 

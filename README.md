@@ -2,7 +2,7 @@
 
 > ⚠️ **Warning**: This repository is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns for integrating Azure Functions with API Management using managed identities. Before using any code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
 
-This repository demonstrates how to securely expose Azure Functions behind Azure API Management (APIM) using managed identities and Microsoft Entra ID (Azure AD) authentication. It provides an end-to-end solution for:
+This repository demonstrates how to securely expose Azure Functions behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides an end-to-end solution for:
 
 - Deploying an Azure Function (Python) with Bicep infrastructure-as-code
 - Integrating API Management (APIM) as a secure gateway to the function
@@ -23,7 +23,7 @@ The repository includes all necessary Bicep templates, scripts, and documentatio
 
 ### Create App Registration for Azure Function Authentication
 
-Before running `azd up`, you must create an Entra ID (Azure AD) app registration for your Azure Function authentication.
+Before running `azd up`, you must create a Microsoft Entra ID app registration for your Azure Function authentication.
 
 1. **Create an App Registration**
 
