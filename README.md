@@ -113,3 +113,7 @@ curl "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -
 ```
 
 > **Note:** The APIM endpoint path is `/hello-api/hello`.
+
+## Troubleshooting
+
+If you encounter issues during deployment or testing, please refer to [`troubleshooting.md`](./troubleshooting.md)
