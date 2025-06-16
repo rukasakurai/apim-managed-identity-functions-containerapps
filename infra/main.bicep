@@ -29,7 +29,7 @@ param existingApimServiceName string = ''
 param deployFunctions bool = true
 
 @description('The clientId of the Entra app registration for the Function App')
-param functionAppAppId string = ''
+param functionAppAppId string
 
 // Integration parameters
 @description('Integrate Functions with APIM')
