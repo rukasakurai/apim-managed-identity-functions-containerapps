@@ -10,9 +10,6 @@
         },
         "environmentName": {
             "value": "dev"
-        },
-        "functionAppAppId": {
-            "value": ""
         }
     }
 }
