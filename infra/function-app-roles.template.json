@@ -5,7 +5,7 @@
     ],
     "description": "APIM calls this function as itself",
     "displayName": "access as application",
-    "id": "405267c3-be49-4003-912c-e7f9143cf3d0",
+    "id": "PLACEHOLDER_GUID",
     "isEnabled": true,
     "value": "access_as_application"
   }

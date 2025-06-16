@@ -5,19 +5,19 @@ echo "Running set-easyauth-allowed-client-applications.sh script..."
 set -e
 
 # Required environment variables:
-#   RESOURCE_GROUP - the resource group name
-#   APIM_NAME      - the APIM resource name
-#   FUNCTION_APP   - the Function App resource name
+#   AZURE_RESOURCE_GROUP - the resource group name
+#   apimServiceName      - the APIM resource name
+#   functionAppName   - the Function App resource name
 
-if [[ -z "$RESOURCE_GROUP" || -z "$APIM_NAME" || -z "$FUNCTION_APP" ]]; then
-  echo "ERROR: RESOURCE_GROUP, APIM_NAME, and FUNCTION_APP must be set."
+if [[ -z "$AZURE_RESOURCE_GROUP" || -z "$apimServiceName" || -z "$functionAppName" ]]; then
+  echo "ERROR: AZURE_RESOURCE_GROUP, apimServiceName, and functionAppName must be set."
   exit 1
 fi
 
 # Get APIM principalId (objectId of managed identity)
 APIM_PRINCIPAL_ID=$(az resource show \
-  --resource-group "$RESOURCE_GROUP" \
-  --name "$APIM_NAME" \
+  --resource-group "$AZURE_RESOURCE_GROUP" \
+  --name "$apimServiceName" \
   --resource-type "Microsoft.ApiManagement/service" \
   --query "identity.principalId" -o tsv)
 
@@ -28,9 +28,9 @@ echo "APIM clientId: $APIM_CLIENT_ID"
 
 # Patch Easy Auth settings to allow only APIM clientId
 az resource update \
-  --resource-group "$RESOURCE_GROUP" \
-  --name "$FUNCTION_APP/authsettingsV2" \
+  --resource-group "$AZURE_RESOURCE_GROUP" \
+  --name "$functionAppName/authsettingsV2" \
   --resource-type "Microsoft.Web/sites/config" \
   --set properties.identityProviders.azureActiveDirectory.validation.jwtClaimChecks.allowedClientApplications="[$APIM_CLIENT_ID]"
 
-echo "Updated allowedClientApplications for $FUNCTION_APP."
+echo "Updated allowedClientApplications for $functionAppName."
