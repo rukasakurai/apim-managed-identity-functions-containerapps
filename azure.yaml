@@ -15,3 +15,8 @@ services:
     project: ./hello-function
     language: python
     host: function
+
+hooks:
+  postprovision:
+    shell: sh
+    run: ./scripts/assign-apim-mi-to-functionapp-app-role.sh

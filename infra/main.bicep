@@ -374,3 +374,9 @@ output functionBackendName string = functionBackend.name
 
 @description('The resource ID of the resource group')
 output RESOURCE_GROUP_ID string = resourceGroup().id
+
+@description('The Application (client) ID of the Function App’s app-registration for Easy Auth')
+output FUNC_EASYAUTH_APP_ID string = functionAppAppId
+
+@description('The principal ID of the APIM system-assigned managed identity (use as APIM_MI_CLIENTID; for clientId, use Azure CLI post-deployment)')
+output APIM_MI_CLIENTID string = apimService.identity.principalId
