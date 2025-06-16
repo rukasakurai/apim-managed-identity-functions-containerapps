@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "apimServiceName": {
+            "value": ""
+        },
+        "backendType": {
+            "value": "function"
+        },
+        "backendResourceId": {
+            "value": ""
+        },
+        "backendHostname": {
+            "value": ""
+        },
+        "backendApiPath": {
+            "value": "/api"
+        },
+        "apimApiPath": {
+            "value": "hello-api"
+        },
+        "apiDisplayName": {
+            "value": "Hello Function API"
+        },
+        "backendAppId": {
+            "value": ""
+        },
+        "backendName": {
+            "value": "hello-function"
+        }
+    }
+}

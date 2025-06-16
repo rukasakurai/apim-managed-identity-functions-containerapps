@@ -2,22 +2,79 @@
 
 > ⚠️ **Warning**: This repository is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns for integrating Azure Functions with API Management using managed identities. Before using any code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
 
-This repository demonstrates how to securely expose Azure Functions behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides an end-to-end solution for:
+This repository demonstrates how to securely expose Azure Functions and other backends behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides a **modular, lifecycle-aware solution** for:
 
-- Deploying an Azure Function (Python) with Bicep infrastructure-as-code
-- Integrating API Management (APIM) as a secure gateway to the function
-- Enabling authentication using Entra ID app registrations
-- Assigning and configuring managed identities and app roles for secure, identity-based access
-- Automating setup with scripts for role assignment and Easy Auth configuration
+- **Independent deployment** of APIM and backend services (Azure Functions, Container Apps)
+- **Flexible integration** patterns for connecting backends to shared APIM instances
+- **Secure authentication** using Entra ID app registrations and managed identities
+- **Automated setup** with infrastructure-as-code (Bicep) and deployment scripts
+- **Extensible architecture** ready for future backend types
+
+## Architecture Overview
+
+The solution uses a **modular approach** that separates concerns and supports independent lifecycle management:
+
+```
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+│   APIM Module       │    │  Functions Module   │    │ Container Apps      │
+│   (Platform Team)   │    │  (App Team A)       │    │ (App Team B)        │
+│                     │    │                     │    │                     │
+│ • Gateway           │    │ • Function App      │    │ • Container App     │
+│ • Policies          │    │ • Storage Account   │    │ • Environment       │
+│ • Products          │    │ • App Service Plan  │    │ • Log Analytics     │
+└─────────────────────┘    └─────────────────────┘    └─────────────────────┘
+           │                           │                           │
+           └───────────────────────────┼───────────────────────────┘
+                                       │
+                    ┌─────────────────────┐
+                    │ APIM Integration    │
+                    │ Module              │
+                    │                     │
+                    │ • Backend Config    │
+                    │ • API Definitions   │
+                    │ • Auth Policies     │
+                    └─────────────────────┘
+```
+
+### Key Benefits
+
+- **Independent Lifecycles**: APIM and backends can be deployed, updated, and managed separately
+- **Team Autonomy**: Platform teams manage APIM, application teams manage their backends
+- **Reusability**: Single APIM instance can serve multiple backend services
+- **Extensibility**: Easy to add new backend types (Container Apps, AKS, etc.)
+- **Flexibility**: Support various deployment scenarios
 
 The solution is ideal for scenarios where you want to:
 
-- Protect Azure Functions from direct public access
-- Use APIM as a secure, authenticated entry point
-- Leverage managed identities for secure, passwordless communication between APIM and Azure Functions
-- Automate infrastructure and security configuration with Bicep and scripts
+- **Share APIM across teams/projects** while maintaining backend independence
+- **Scale backend services independently** without affecting the API gateway
+- **Use different deployment cadences** for platform vs. application components
+- **Support multiple backend technologies** behind a unified API gateway
+- **Implement enterprise API governance** with centralized APIM management
 
-The repository includes all necessary Bicep templates, scripts, and documentation to provision, configure, and test the integration end-to-end.
+## Deployment Scenarios
+
+This repository supports multiple deployment patterns. See [DEPLOYMENT-SCENARIOS.md](./DEPLOYMENT-SCENARIOS.md) for detailed scenarios.
+
+### Quick Examples
+
+#### 1. Full Deployment (Default)
+
+```bash
+azd up
+```
+
+#### 2. APIM-Only (Platform Setup)
+
+```bash
+azd provision --parameters deployApim=true deployFunctions=false integrateFunctionsWithApim=false
+```
+
+#### 3. Functions with Existing APIM
+
+```bash
+azd provision --parameters deployApim=false deployFunctions=true integrateFunctionsWithApim=true existingApimServiceName="your-apim-name"
+```
 
 ## Quick Start
 
