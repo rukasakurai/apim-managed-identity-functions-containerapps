@@ -34,18 +34,10 @@ Before running `azd up`, you must create a Microsoft Entra ID app registration f
    - Leave Redirect URI blank.
    - Click **Register**.
 
-2. **Copy the Application (client) ID**
+2. **Configure**: Expose an API → Set Application ID URI to `api://{client-id}`
+3. **Cppy**: Copy the client ID. When running `azd up`, you will be prompted for it
 
-   - After registration, go to the app’s overview page.
-   - Copy the **Application (client) ID**.
-
-3. **Set the Application ID URI**
-
-- Got to **Expose an API** in the Portal
-- Edit the **Application ID URI** and set it to `api://<Application (client) ID>`
-
-4. **Run `azd up`**
-   - When prompted for the `functionAppAppId` parameter, paste the Application (client) ID you copied above.
+> **Why needed**: For JWT authentication between APIM and Functions.
 
 ### Provision & Deploy
 
@@ -72,47 +64,21 @@ If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`)
 
 ### Test
 
-#### Test the Azure Function
-
-After deployment, test the function:
+#### Test the Azure Function (should fail):
 
 ```sh
-curl "https://$FUNCTION_APP_NAME.azurewebsites.net/api/hello?code=$MASTER_KEY"
-```
-
-or
-
-```sh
-curl "https://$(azd env get-values | grep "functionAppName" | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
+curl "https://$(azd env get-values | grep functionAppName | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
 ```
 
 **Expected Response:** Error (Not `Hello, world!`)
 
-#### Test the Azure API Management endpoint
-
-After deployment, test the API Management endpoint:
-
-```sh
-curl "https://$APIM_SERVICE_NAME.azure-api.net/hello-api/hello"
-```
-
-Or, if you have the APIM endpoint URL from deployment:
-
-```sh
-curl "$helloApiUrl"
-```
-
-**Expected Response:** `Hello, world!`
-
-### One-liner for quick testing:
-
-If you are using `azd`, you can fetch the APIM endpoint URL from your environment outputs:
+#### Test the Azure API Management endpoint (should work):
 
 ```sh
 curl "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -d '"').azure-api.net/hello-api/hello"
 ```
 
-> **Note:** The APIM endpoint path is `/hello-api/hello`.
+or test from the APIs section of the Azure API Management resource in Azure Portal
 
 ## Troubleshooting
 
