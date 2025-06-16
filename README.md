@@ -2,7 +2,7 @@
 
 > ⚠️ **Warning**: This repository is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns for integrating Azure Functions with API Management using managed identities. Before using any code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
 
-This repository demonstrates how to securely expose Azure Functions behind Azure API Management (APIM) using managed identities and Microsoft Entra ID (Azure AD) authentication. It provides an end-to-end solution for:
+This repository demonstrates how to securely expose Azure Functions behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides an end-to-end solution for:
 
 - Deploying an Azure Function (Python) with Bicep infrastructure-as-code
 - Integrating API Management (APIM) as a secure gateway to the function
@@ -23,7 +23,7 @@ The repository includes all necessary Bicep templates, scripts, and documentatio
 
 ### Create App Registration for Azure Function Authentication
 
-Before running `azd up`, you must create an Entra ID (Azure AD) app registration for your Azure Function authentication.
+Before running `azd up`, you must create a Microsoft Entra ID app registration for your Azure Function authentication.
 
 1. **Create an App Registration**
 
@@ -34,13 +34,10 @@ Before running `azd up`, you must create an Entra ID (Azure AD) app registration
    - Leave Redirect URI blank.
    - Click **Register**.
 
-2. **Copy the Application (client) ID**
+2. **Configure**: Expose an API → Set Application ID URI to `api://{client-id}`
+3. **Cppy**: Copy the client ID. When running `azd up`, you will be prompted for it
 
-   - After registration, go to the app’s overview page.
-   - Copy the **Application (client) ID**.
-
-3. **Run `azd up`**
-   - When prompted for the `functionAppAppId` parameter, paste the Application (client) ID you copied above.
+> **Why needed**: For JWT authentication between APIM and Functions.
 
 ### Provision & Deploy
 
@@ -67,44 +64,26 @@ If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`)
 
 ### Test
 
-#### Test the Azure Function
-
-After deployment, test the function:
+#### Test the Azure Function (should fail):
 
 ```sh
-curl "https://$FUNCTION_APP_NAME.azurewebsites.net/api/hello?code=$MASTER_KEY"
-```
-
-or
-
-```sh
-curl "https://$(azd env get-values | grep "functionAppName" | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
+curl "https://$(azd env get-values | grep functionAppName | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
 ```
 
 **Expected Response:** Error (Not `Hello, world!`)
 
-#### Test the Azure API Management endpoint
-
-After deployment, test the API Management endpoint:
-
-```sh
-curl "https://$APIM_SERVICE_NAME.azure-api.net/hello-api/hello"
-```
-
-Or, if you have the APIM endpoint URL from deployment:
-
-```sh
-curl "$helloApiUrl"
-```
-
-**Expected Response:** `Hello, world!`
-
-### One-liner for quick testing:
-
-If you are using `azd`, you can fetch the APIM endpoint URL from your environment outputs:
+#### Test the Azure API Management endpoint (should work):
 
 ```sh
 curl "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -d '"').azure-api.net/hello-api/hello"
 ```
 
-> **Note:** The APIM endpoint path is `/hello-api/hello`.
+or test from the APIs section of the Azure API Management resource in Azure Portal
+
+## Troubleshooting
+
+If you encounter issues during deployment or testing, please refer to [`troubleshooting.md`](./troubleshooting.md)
+
+## Contributing
+
+We welcome [Issues](../../issues) and [Pull Requests](../../pulls)! No guarantee of acceptance - this is a demo repository. See [Contributing Guidelines](CONTRIBUTING.md).
