@@ -1,0 +1,12 @@
+[
+  {
+    "allowedMemberTypes": [
+      "Application"
+    ],
+    "description": "APIM calls this function as itself",
+    "displayName": "access as application",
+    "id": "PLACEHOLDER_GUID",
+    "isEnabled": true,
+    "value": "access_as_application"
+  }
+]
