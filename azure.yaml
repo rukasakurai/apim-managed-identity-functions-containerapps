@@ -22,3 +22,9 @@ hooks:
     run: |
       ./scripts/assign-apim-mi-to-functionapp-app-role.sh
       ./scripts/set-easyauth-allowed-client-applications.sh
+  
+  predown:
+    shell: sh
+    run: |
+      echo "Cleaning up Entra ID app roles and assignments..."
+      ./scripts/cleanup-app-roles.sh
