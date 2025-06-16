@@ -14,9 +14,6 @@
         "backendHostname": {
             "value": ""
         },
-        "backendApiPath": {
-            "value": "/api"
-        },
         "apimApiPath": {
             "value": "hello-api"
         },
