@@ -20,14 +20,8 @@
         "publisherName": {
             "value": "API Administrator"
         },
-        "existingApimServiceName": {
-            "value": ""
-        },
         "deployFunctions": {
             "value": true
-        },
-        "functionAppAppId": {
-            "value": ""
         },
         "deployContainerApps": {
             "value": false
