@@ -147,7 +147,7 @@ resource funcAuth 'Microsoft.Web/sites/config@2024-04-01' = {
         }
         validation: {
           allowedAudiences: [
-            '${functionAppAppId}'
+            'api://${functionAppAppId}'
           ]
         }
       }
