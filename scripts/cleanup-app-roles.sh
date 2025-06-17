@@ -4,8 +4,8 @@
 echo "Running cleanup-app-roles.sh script..."
 
 # Check if required environment variables are set
-if [ -z "$functionAppAppId" ]; then
-    echo "Warning: functionAppAppId not set. Skipping app role cleanup."
+if [ -z "$functionAuthAppId" ]; then
+    echo "Warning: functionAuthAppId not set. Skipping app role cleanup."
     exit 0
 fi
 
@@ -19,7 +19,7 @@ echo "Cleaning up app role assignments for APIM managed identity..."
 # Get the app role assignment ID
 ASSIGNMENT_ID=$(az rest --method GET \
   --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments" \
-  --query "value[?resourceId=='$(az ad sp show --id $functionAppAppId --query id -o tsv)'].id" \
+  --query "value[?resourceId=='$(az ad sp show --id $functionAuthAppId --query id -o tsv)'].id" \
   -o tsv 2>/dev/null)
 
 # Delete the app role assignment if it exists

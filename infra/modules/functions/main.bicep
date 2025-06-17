@@ -11,7 +11,7 @@ param location string = resourceGroup().location
 param environmentName string = 'dev'
 
 @description('The clientId of the Entra app registration for the Function App')
-param functionAppAppId string
+param functionAuthAppId string
 
 // Variables
 var uniqueSuffix = substring(uniqueString(resourceGroup().id), 0, 6)
@@ -142,12 +142,12 @@ resource funcAuth 'Microsoft.Web/sites/config@2024-04-01' = {
     identityProviders: {
       azureActiveDirectory: {
         registration: {
-          clientId: functionAppAppId
+          clientId: functionAuthAppId
           openIdIssuer: 'https://sts.windows.net/${tenant().tenantId}/'
         }
         validation: {
           allowedAudiences: [
-            'api://${functionAppAppId}'
+            'api://${functionAuthAppId}'
           ]
         }
       }

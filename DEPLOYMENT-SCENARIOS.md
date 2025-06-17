@@ -78,7 +78,7 @@ azd provision --parameters deployApim=false deployFunctions=false integrateFunct
 - `resourcePrefix`: Name prefix for resources
 - `location`: Azure region
 - `environmentName`: Environment name
-- `functionAppAppId`: Entra ID app registration client ID
+- `functionAuthAppId`: Entra ID app registration client ID
 
 ### APIM Backend Integration Parameters
 

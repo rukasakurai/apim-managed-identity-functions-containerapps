@@ -29,7 +29,7 @@ param existingApimServiceName string = ''
 param deployFunctions bool = true
 
 @description('The clientId of the Entra app registration for the Function App')
-param functionAppAppId string
+param functionAuthAppId string
 
 // Integration parameters
 @description('Integrate Functions with APIM')
@@ -57,7 +57,7 @@ module functionsModule 'modules/functions/main.bicep' = if (deployFunctions) {
     resourcePrefix: resourcePrefix
     location: location
     environmentName: environmentName
-    functionAppAppId: functionAppAppId
+    functionAuthAppId: functionAuthAppId
   }
 }
 
@@ -72,7 +72,7 @@ module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = 
     backendApiPath: '/api'
     apimApiPath: 'hello-api'
     apiDisplayName: 'Hello Function API'
-    backendAppId: functionAppAppId
+    backendAppId: functionAuthAppId
     backendName: 'hello-function'
   }
 }
@@ -127,4 +127,4 @@ output functionApiName string = integrateFunctionsWithApim ? functionsApimIntegr
 output resourceGroupId string = resourceGroup().id
 
 @description('Function App App ID for Easy Auth')
-output functionAppAppId string = functionAppAppId
+output functionAuthAppId string = functionAuthAppId
