@@ -6,7 +6,7 @@
 
 This repository demonstrates how to securely expose Azure Functions and other backends behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides a **modular, lifecycle-aware solution** for:
 
-- **Independent deployment** of APIM and backend services (Azure Functions, Container Apps)
+- **Independent deployment** of APIM and backend services
 - **Flexible integration** patterns for connecting backends to shared APIM instances
 - **Secure authentication** using Entra ID app registrations and managed identities
 - **Automated setup** with infrastructure-as-code (Bicep) and deployment scripts
@@ -19,8 +19,8 @@ The solution uses a **modular approach** that separates concerns and supports in
 ```
 ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
 │   APIM Module       │    │  Functions Module   │    │ Container Apps      │
-│   (Platform Team)   │    │  (App Team A)       │    │ (App Team B)        │
-│                     │    │                     │    │                     │
+│   (Platform Team)   │    │  (App Team A)       │    │ (App Team B) 🚧     │
+│                     │    │                     │    │ [Work in Progress]  │
 │ • Gateway           │    │ • Function App      │    │ • Container App     │
 │ • Policies          │    │ • Storage Account   │    │ • Environment       │
 │ • Products          │    │ • App Service Plan  │    │ • Log Analytics     │
@@ -92,8 +92,6 @@ If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`)
 ```sh
 curl "https://$(azd env get-values | grep functionAppName | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
 ```
-
-**Expected Response:** Error (Not `Hello, world!`)
 
 #### Test the Azure API Management endpoint (should work):
 
