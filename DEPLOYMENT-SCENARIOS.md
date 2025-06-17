@@ -1,10 +1,10 @@
 # Deployment Scenarios
 
-This repository now supports multiple deployment scenarios to accommodate different lifecycle management needs.
+This repository supports multiple deployment scenarios to accommodate different lifecycle management needs.
 
 ## Architecture Overview
 
-The infrastructure is now modular with the following components:
+The infrastructure is modular with the following components:
 
 - **APIM Module** (`infra/modules/apim/`): API Management service that can be deployed independently
 - **Functions Module** (`infra/modules/functions/`): Azure Functions that can be deployed independently

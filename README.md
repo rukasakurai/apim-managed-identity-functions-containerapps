@@ -36,45 +36,9 @@ The solution uses a **modular approach** that separates concerns and supports in
                     └─────────────────────┘
 ```
 
-### Key Benefits
-
-- **Independent Lifecycles**: APIM and backends can be deployed, updated, and managed separately
-- **Team Autonomy**: Platform teams manage APIM, application teams manage their backends
-- **Reusability**: Single APIM instance can serve multiple backend services
-- **Extensibility**: Easy to add new backend types (Container Apps, AKS, etc.)
-- **Flexibility**: Support various deployment scenarios
-
-The solution is ideal for scenarios where you want to:
-
-- **Share APIM across teams/projects** while maintaining backend independence
-- **Scale backend services independently** without affecting the API gateway
-- **Use different deployment cadences** for platform vs. application components
-- **Support multiple backend technologies** behind a unified API gateway
-- **Implement enterprise API governance** with centralized APIM management
-
 ## Deployment Scenarios
 
 This repository supports multiple deployment patterns. See [DEPLOYMENT-SCENARIOS.md](./DEPLOYMENT-SCENARIOS.md) for detailed scenarios.
-
-### Quick Examples
-
-#### 1. Full Deployment (Default)
-
-```bash
-azd up
-```
-
-#### 2. APIM-Only (Platform Setup)
-
-```bash
-azd provision --parameters deployApim=true deployFunctions=false integrateFunctionsWithApim=false
-```
-
-#### 3. Functions with Existing APIM
-
-```bash
-azd provision --parameters deployApim=false deployFunctions=true integrateFunctionsWithApim=true existingApimServiceName="your-apim-name"
-```
 
 ## Quick Start
 
