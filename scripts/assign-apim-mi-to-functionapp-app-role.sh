@@ -34,13 +34,13 @@ fi
 sed "s/PLACEHOLDER_GUID/$APP_ROLE_GUID/g" "$TEMPLATE_FILE" > "$TEMP_APPROLE_FILE"
 
 # Check if app role already exists before updating
-EXISTING_ROLE_ID=$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query "appRoles[?value=='access_as_application'].id" -o tsv 2>/dev/null)
+EXISTING_ROLE_ID=$(az ad sp show --id $functionAppAppId --query "appRoles[?value=='access_as_application'].id" -o tsv 2>/dev/null)
 
 if [ -n "$EXISTING_ROLE_ID" ]; then
     echo "App role 'access_as_application' already exists (ID: $EXISTING_ROLE_ID). Skipping app role creation."
 else
     echo "Creating app role 'access_as_application'..."
-    az ad app update --id "$FUNC_EASYAUTH_APP_ID"  --app-roles @"$TEMP_APPROLE_FILE"
+    az ad app update --id "$functionAppAppId"  --app-roles @"$TEMP_APPROLE_FILE"
     
     if [ $? -eq 0 ]; then
         echo "App role created successfully"
@@ -54,7 +54,7 @@ fi
 # Clean up temporary file
 rm "$TEMP_APPROLE_FILE"
 
-ROLE_ID=$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query "appRoles[?value=='access_as_application'].id" -o tsv)
+ROLE_ID=$(az ad sp show --id $functionAppAppId --query "appRoles[?value=='access_as_application'].id" -o tsv)
 
 if [ -z "$ROLE_ID" ]; then
     echo "ERROR: Could not find app role 'access_as_application' in the app registration"
@@ -65,19 +65,18 @@ echo "Found app role ID: $ROLE_ID"
 
 # Check if the app role assignment already exists
 EXISTING_ASSIGNMENT=$(az rest --method GET \
-  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_PRINCIPAL_ID/appRoleAssignments" \
-  --query "value[?resourceId=='$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query id -o tsv)' && appRoleId=='$ROLE_ID'].id" \
+  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments" \
+  --query "value[?resourceId=='$(az ad sp show --id $functionAppAppId --query id -o tsv)' && appRoleId=='$ROLE_ID'].id" \
   -o tsv 2>/dev/null)
 
 if [ -n "$EXISTING_ASSIGNMENT" ]; then
     echo "App role assignment already exists (ID: $EXISTING_ASSIGNMENT). Skipping creation."
-else    echo "Creating new app role assignment..."
-    # Create the assignment with Microsoft Graph via az rest
+else    echo "Creating new app role assignment..."    # Create the assignment with Microsoft Graph via az rest
     az rest --method POST \
-      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_PRINCIPAL_ID/appRoleAssignments" \
+      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments" \
       --body '{
-          "principalId":"'$APIM_PRINCIPAL_ID'",
-          "resourceId":"'"$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query id -o tsv)"'",
+          "principalId":"'$apimPrincipalId'",
+          "resourceId":"'"$(az ad sp show --id $functionAppAppId --query id -o tsv)"'",
           "appRoleId":"'$ROLE_ID'"
         }' \
       --headers "Content-Type=application/json"

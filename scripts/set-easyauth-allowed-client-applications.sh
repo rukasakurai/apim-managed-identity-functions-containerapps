@@ -16,33 +16,33 @@ fi
 # Required environment variables:
 #   AZURE_RESOURCE_GROUP - the resource group name
 #   functionAppName      - the Function App resource name
-#   APIM_PRINCIPAL_ID    - the APIM managed identity principal ID (from Bicep output)
+#   apimPrincipalId    - the APIM managed identity principal ID (from Bicep output)
 
 if [[ -z "$AZURE_RESOURCE_GROUP" || -z "$functionAppName" ]]; then
   echo "ERROR: AZURE_RESOURCE_GROUP and functionAppName must be set."
   exit 1
 fi
 
-# Accept APIM_PRINCIPAL_ID as an argument if not set as env var
-if [[ -z "$APIM_PRINCIPAL_ID" ]]; then
+# Accept apimPrincipalId as an argument if not set as env var
+if [[ -z "$apimPrincipalId" ]]; then
   if [[ -n "$1" ]]; then
-    APIM_PRINCIPAL_ID="$1"
+    apimPrincipalId="$1"
   else
-    echo "ERROR: APIM_PRINCIPAL_ID must be set as an environment variable or provided as the first argument."
+    echo "ERROR: apimPrincipalId must be set as an environment variable or provided as the first argument."
     echo "This should be the principal ID (object ID) from the APIM Bicep output."
     exit 1
   fi
 fi
 
-echo "APIM principal ID: $APIM_PRINCIPAL_ID"
+echo "APIM principal ID: $apimPrincipalId"
 
 # Get APIM clientId (appId of service principal) from the provided principal ID
 echo "Getting APIM client ID from principal ID..."
-APIM_CLIENT_ID=$(az ad sp show --id "$APIM_PRINCIPAL_ID" --query appId -o tsv)
+APIM_CLIENT_ID=$(az ad sp show --id "$apimPrincipalId" --query appId -o tsv)
 
 if [ -z "$APIM_CLIENT_ID" ]; then
   echo "ERROR: Could not retrieve APIM client ID"
-  echo "Principal ID: $APIM_PRINCIPAL_ID"
+  echo "Principal ID: $apimPrincipalId"
   exit 1
 fi
 

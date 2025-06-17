@@ -92,8 +92,8 @@ output apimServiceId string = deployApim
   : resourceId('Microsoft.ApiManagement/service', existingApimServiceName)
 
 @description('APIM Principal ID')
-output APIM_PRINCIPAL_ID string = deployApim
-  ? apimModule.outputs.APIM_PRINCIPAL_ID
+output apimPrincipalId string = deployApim
+  ? apimModule.outputs.apimPrincipalId
   : reference(resourceId('Microsoft.ApiManagement/service', existingApimServiceName), '2024-05-01', 'Full').identity.principalId
 
 @description('Function App Name')
@@ -124,7 +124,7 @@ output functionBackendName string = integrateFunctionsWithApim ? functionsApimIn
 output functionApiName string = integrateFunctionsWithApim ? functionsApimIntegration.outputs.apiName : ''
 
 @description('Resource Group ID')
-output RESOURCE_GROUP_ID string = resourceGroup().id
+output resourceGroupId string = resourceGroup().id
 
 @description('Function App App ID for Easy Auth')
-output FUNC_EASYAUTH_APP_ID string = functionAppAppId
+output functionAppAppId string = functionAppAppId
