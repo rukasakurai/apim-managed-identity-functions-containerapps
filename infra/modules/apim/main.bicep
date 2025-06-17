@@ -85,9 +85,6 @@ output apimServiceId string = apimService.id
 @description('The principal ID of the APIM managed identity')
 output apimPrincipalId string = apimService.identity.principalId
 
-@description('The client ID of the APIM managed identity')
-output apimClientId string = apimService.identity.principalId
-
 @description('The gateway URL of the API Management service')
 output apimGatewayUrl string = apimService.properties.gatewayUrl
 
