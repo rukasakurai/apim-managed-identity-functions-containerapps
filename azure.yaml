@@ -21,9 +21,7 @@ hooks:
     shell: sh
     run: |
       ./scripts/assign-apim-mi-to-functionapp-app-role.sh
-      if [ "$DEPLOY_FUNCTIONS" = "true" ] && [ "$INTEGRATE_FUNCTIONS_WITH_APIM" = "true" ]; then
-        ./scripts/set-easyauth-allowed-client-applications.sh
-      fi
+      ./scripts/set-easyauth-allowed-client-applications.sh
   predown:
     shell: sh
     run: |

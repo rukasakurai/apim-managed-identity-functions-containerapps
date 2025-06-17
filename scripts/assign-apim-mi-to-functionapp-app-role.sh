@@ -38,8 +38,9 @@ EXISTING_ROLE_ID=$(az ad sp show --id $functionAuthAppId --query "appRoles[?valu
 
 if [ -n "$EXISTING_ROLE_ID" ]; then
     echo "App role 'access_as_application' already exists (ID: $EXISTING_ROLE_ID). Skipping app role creation."
-else    echo "Creating app role 'access_as_application'..."
-    az ad app update --id "$functionAuthAppId"  --app-roles @"$TEMP_APPROLE_FILE"
+else
+    echo "Creating app role 'access_as_application'..."
+    az ad app update --id "$functionAuthAppId" --app-roles @"$TEMP_APPROLE_FILE"
     
     if [ $? -eq 0 ]; then
         echo "App role created successfully"
@@ -70,9 +71,12 @@ EXISTING_ASSIGNMENT=$(az rest --method GET \
 
 if [ -n "$EXISTING_ASSIGNMENT" ]; then
     echo "App role assignment already exists (ID: $EXISTING_ASSIGNMENT). Skipping creation."
-else    echo "Creating new app role assignment..."    # Create the assignment with Microsoft Graph via az rest
+else
+    echo "Creating new app role assignment..."
+    # Create the assignment with Microsoft Graph via az rest
     az rest --method POST \
-      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments" \      --body '{
+      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments" \
+      --body '{
           "principalId":"'$apimPrincipalId'",
           "resourceId":"'"$(az ad sp show --id $functionAuthAppId --query id -o tsv)"'",
           "appRoleId":"'$ROLE_ID'"
