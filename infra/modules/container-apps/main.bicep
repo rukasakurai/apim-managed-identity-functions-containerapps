@@ -42,7 +42,7 @@ param websocketPort int = 8080
 
 // Variables for resource naming
 // Ensure names stay within Azure limits (32 chars for Container Apps)
-var shortResourceToken = take(resourceToken, 6)  // Use only first 6 chars of resource token
+var shortResourceToken = take(resourceToken, 6) // Use only first 6 chars of resource token
 var containerAppEnvironmentName = '${take(resourcePrefix, 10)}-cae-${shortResourceToken}'
 var websocketAppName = '${take(resourcePrefix, 10)}-ws-${shortResourceToken}'
 // Use base image for initial deployment - update after building custom image
