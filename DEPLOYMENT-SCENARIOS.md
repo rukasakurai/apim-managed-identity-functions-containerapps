@@ -8,7 +8,7 @@ The infrastructure is modular with the following components:
 
 - **APIM Module** (`infra/modules/apim/`): API Management service that can be deployed independently
 - **Functions Module** (`infra/modules/functions/`): Azure Functions that can be deployed independently
-- **Container Apps Module** (`infra/modules/container-apps/`): Future support for Container Apps
+- **Container Apps Module** (`infra/modules/container-apps/`): ⚠️ **Work in Progress** - Infrastructure code exists but not integrated into main deployment
 - **APIM Backend Integration Module** (`infra/modules/apim-backend-integration/`): Connects any backend to APIM
 
 ## Deployment Scenarios
@@ -94,15 +94,22 @@ azd provision --parameters deployApim=false deployFunctions=false integrateFunct
 
 ## Future Enhancements
 
-### Container Apps Support
+### Container Apps Support (Work in Progress)
 
-The infrastructure is ready for Container Apps. To add support:
+⚠️ **Current Status**: The Container Apps infrastructure module is implemented in `infra/modules/container-apps/` but not yet integrated into the main deployment pipeline.
 
-1. Implement authentication for Container Apps
-2. Update the main orchestration template to include Container Apps module
-3. Create Container Apps-specific deployment scripts
+**What's completed**:
 
-### Example for Container Apps:
+- Container Apps infrastructure module with authentication support
+- WebSocket application code in `services/websocket-app/`
+
+**What's needed to complete**:
+
+1. Integration into the main orchestration template (`infra/main.bicep`)
+2. Addition of Container Apps service to `azure.yaml`
+3. Creation of Container Apps-specific deployment parameters
+
+### Example for Container Apps (when completed):
 
 ```bash
 # Future: Deploy Container Apps with APIM

@@ -2,6 +2,8 @@
 
 > ⚠️ **Warning**: This repository is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns for integrating Azure Functions with API Management using managed identities. Before using any code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
 
+> **Note**: Container Apps integration is currently work in progress. The infrastructure modules exist but are not yet integrated into the main deployment pipeline. The current implementation focuses on APIM + Azure Functions integration.
+
 This repository demonstrates how to securely expose Azure Functions and other backends behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides a **modular, lifecycle-aware solution** for:
 
 - **Independent deployment** of APIM and backend services (Azure Functions, Container Apps)
