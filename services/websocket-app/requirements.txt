@@ -1,0 +1,13 @@
+# WebSocket Hello World Application Dependencies
+# Following Azure best practices for container deployments
+
+# Core WebSocket library - stable and well-maintained
+websockets==12.0
+
+# Additional utilities for production deployment
+uvloop==0.19.0  # High-performance event loop for better performance on Linux
+pydantic==2.5.0  # Data validation and settings management
+python-json-logger==2.0.7  # Structured logging for better Azure monitoring
+
+# Optional: Health monitoring and metrics
+prometheus-client==0.19.0  # For custom metrics if needed

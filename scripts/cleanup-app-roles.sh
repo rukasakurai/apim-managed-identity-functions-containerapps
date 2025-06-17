@@ -4,13 +4,13 @@
 echo "Running cleanup-app-roles.sh script..."
 
 # Check if required environment variables are set
-if [ -z "$FUNC_EASYAUTH_APP_ID" ]; then
-    echo "Warning: FUNC_EASYAUTH_APP_ID not set. Skipping app role cleanup."
+if [ -z "$functionAuthAppId" ]; then
+    echo "Warning: functionAuthAppId not set. Skipping app role cleanup."
     exit 0
 fi
 
-if [ -z "$APIM_MI_CLIENTID" ]; then
-    echo "Warning: APIM_MI_CLIENTID not set. Skipping app role assignment cleanup."
+if [ -z "$apimPrincipalId" ]; then
+    echo "Warning: apimPrincipalId not set. Skipping app role assignment cleanup."
     exit 0
 fi
 
@@ -18,15 +18,15 @@ echo "Cleaning up app role assignments for APIM managed identity..."
 
 # Get the app role assignment ID
 ASSIGNMENT_ID=$(az rest --method GET \
-  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_MI_CLIENTID/appRoleAssignments" \
-  --query "value[?resourceId=='$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query id -o tsv)'].id" \
+  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments" \
+  --query "value[?resourceId=='$(az ad sp show --id $functionAuthAppId --query id -o tsv)'].id" \
   -o tsv 2>/dev/null)
 
 # Delete the app role assignment if it exists
 if [ -n "$ASSIGNMENT_ID" ]; then
     echo "Removing app role assignment: $ASSIGNMENT_ID"
     az rest --method DELETE \
-      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_MI_CLIENTID/appRoleAssignments/$ASSIGNMENT_ID"
+      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments/$ASSIGNMENT_ID"
     echo "App role assignment removed successfully"
 else
     echo "No app role assignment found to remove"

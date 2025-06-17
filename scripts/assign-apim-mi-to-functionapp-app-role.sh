@@ -34,13 +34,13 @@ fi
 sed "s/PLACEHOLDER_GUID/$APP_ROLE_GUID/g" "$TEMPLATE_FILE" > "$TEMP_APPROLE_FILE"
 
 # Check if app role already exists before updating
-EXISTING_ROLE_ID=$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query "appRoles[?value=='access_as_application'].id" -o tsv 2>/dev/null)
+EXISTING_ROLE_ID=$(az ad sp show --id $functionAuthAppId --query "appRoles[?value=='access_as_application'].id" -o tsv 2>/dev/null)
 
 if [ -n "$EXISTING_ROLE_ID" ]; then
     echo "App role 'access_as_application' already exists (ID: $EXISTING_ROLE_ID). Skipping app role creation."
 else
     echo "Creating app role 'access_as_application'..."
-    az ad app update --id "$FUNC_EASYAUTH_APP_ID"  --app-roles @"$TEMP_APPROLE_FILE"
+    az ad app update --id "$functionAuthAppId" --app-roles @"$TEMP_APPROLE_FILE"
     
     if [ $? -eq 0 ]; then
         echo "App role created successfully"
@@ -54,7 +54,7 @@ fi
 # Clean up temporary file
 rm "$TEMP_APPROLE_FILE"
 
-ROLE_ID=$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query "appRoles[?value=='access_as_application'].id" -o tsv)
+ROLE_ID=$(az ad sp show --id $functionAuthAppId --query "appRoles[?value=='access_as_application'].id" -o tsv)
 
 if [ -z "$ROLE_ID" ]; then
     echo "ERROR: Could not find app role 'access_as_application' in the app registration"
@@ -65,8 +65,8 @@ echo "Found app role ID: $ROLE_ID"
 
 # Check if the app role assignment already exists
 EXISTING_ASSIGNMENT=$(az rest --method GET \
-  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_MI_CLIENTID/appRoleAssignments" \
-  --query "value[?resourceId=='$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query id -o tsv)' && appRoleId=='$ROLE_ID'].id" \
+  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments" \
+  --query "value[?resourceId=='$(az ad sp show --id $functionAuthAppId --query id -o tsv)' && appRoleId=='$ROLE_ID'].id" \
   -o tsv 2>/dev/null)
 
 if [ -n "$EXISTING_ASSIGNMENT" ]; then
@@ -75,10 +75,10 @@ else
     echo "Creating new app role assignment..."
     # Create the assignment with Microsoft Graph via az rest
     az rest --method POST \
-      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_MI_CLIENTID/appRoleAssignments" \
+      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$apimPrincipalId/appRoleAssignments" \
       --body '{
-          "principalId":"'$APIM_MI_CLIENTID'",
-          "resourceId":"'"$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query id -o tsv)"'",
+          "principalId":"'$apimPrincipalId'",
+          "resourceId":"'"$(az ad sp show --id $functionAuthAppId --query id -o tsv)"'",
           "appRoleId":"'$ROLE_ID'"
         }' \
       --headers "Content-Type=application/json"

@@ -1,8 +1,8 @@
 # azure.yaml schema: https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: apim-functions-app
+name: apim-backend-services
 metadata:
-  template: apim-functions-app@0.0.1-beta
+  template: apim-backend-services@0.0.1-beta
 
 # Deployment configuration
 infra:
@@ -12,7 +12,7 @@ infra:
 # Services configuration
 services:
   function:
-    project: ./hello-function
+    project: ./services/hello-function
     language: python
     host: function
 
@@ -21,8 +21,7 @@ hooks:
     shell: sh
     run: |
       ./scripts/assign-apim-mi-to-functionapp-app-role.sh
-#      ./scripts/set-easyauth-allowed-client-applications.sh
-  
+      ./scripts/set-easyauth-allowed-client-applications.sh
   predown:
     shell: sh
     run: |

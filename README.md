@@ -2,22 +2,45 @@
 
 > ⚠️ **Warning**: This repository is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns for integrating Azure Functions with API Management using managed identities. Before using any code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
 
-This repository demonstrates how to securely expose Azure Functions behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides an end-to-end solution for:
+> **Note**: Container Apps integration is currently work in progress. The infrastructure modules exist but are not yet integrated into the main deployment pipeline. The current implementation focuses on APIM + Azure Functions integration.
 
-- Deploying an Azure Function (Python) with Bicep infrastructure-as-code
-- Integrating API Management (APIM) as a secure gateway to the function
-- Enabling authentication using Entra ID app registrations
-- Assigning and configuring managed identities and app roles for secure, identity-based access
-- Automating setup with scripts for role assignment and Easy Auth configuration
+This repository demonstrates how to securely expose Azure Functions and other backends behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides a **modular, lifecycle-aware solution** for:
 
-The solution is ideal for scenarios where you want to:
+- **Independent deployment** of APIM and backend services
+- **Flexible integration** patterns for connecting backends to shared APIM instances
+- **Secure authentication** using Entra ID app registrations and managed identities
+- **Automated setup** with infrastructure-as-code (Bicep) and deployment scripts
+- **Extensible architecture** ready for future backend types
 
-- Protect Azure Functions from direct public access
-- Use APIM as a secure, authenticated entry point
-- Leverage managed identities for secure, passwordless communication between APIM and Azure Functions
-- Automate infrastructure and security configuration with Bicep and scripts
+## Architecture Overview
 
-The repository includes all necessary Bicep templates, scripts, and documentation to provision, configure, and test the integration end-to-end.
+The solution uses a **modular approach** that separates concerns and supports independent lifecycle management:
+
+```
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+│   APIM Module       │    │  Functions Module   │    │ Container Apps      │
+│   (Platform Team)   │    │  (App Team A)       │    │ (App Team B) 🚧     │
+│                     │    │                     │    │ [Work in Progress]  │
+│ • Gateway           │    │ • Function App      │    │ • Container App     │
+│ • Policies          │    │ • Storage Account   │    │ • Environment       │
+│ • Products          │    │ • App Service Plan  │    │ • Log Analytics     │
+└─────────────────────┘    └─────────────────────┘    └─────────────────────┘
+           │                           │                           │
+           └───────────────────────────┼───────────────────────────┘
+                                       │
+                    ┌─────────────────────┐
+                    │ APIM Integration    │
+                    │ Module              │
+                    │                     │
+                    │ • Backend Config    │
+                    │ • API Definitions   │
+                    │ • Auth Policies     │
+                    └─────────────────────┘
+```
+
+## Deployment Scenarios
+
+This repository supports multiple deployment patterns. See [DEPLOYMENT-SCENARIOS.md](./DEPLOYMENT-SCENARIOS.md) for detailed scenarios.
 
 ## Quick Start
 
@@ -69,8 +92,6 @@ If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`)
 ```sh
 curl "https://$(azd env get-values | grep functionAppName | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
 ```
-
-**Expected Response:** Error (Not `Hello, world!`)
 
 #### Test the Azure API Management endpoint (should work):
 

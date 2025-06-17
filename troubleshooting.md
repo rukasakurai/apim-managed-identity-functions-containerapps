@@ -35,7 +35,8 @@ sequenceDiagram
 
 ### 401 Unauthorized
 
-Incorrect settings in the Inbound processing policy settings can cause this. Updates to the policy can take some time to take effect (e.g., 1 minute).
+- Incorrect settings in the Inbound processing policy settings can cause this. Updates to the policy can take some time to take effect (e.g., 1 minute).
+- Insufficient API permissions can cause this (TODO: double check if this is correct)
 
 ### 403 Forbidden
 

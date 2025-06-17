@@ -11,11 +11,26 @@
         "environmentName": {
             "value": "dev"
         },
+        "deployApim": {
+            "value": true
+        },
         "publisherEmail": {
             "value": "admin@example.com"
         },
         "publisherName": {
             "value": "API Administrator"
+        },
+        "deployFunctions": {
+            "value": true
+        },
+        "deployContainerApps": {
+            "value": false
+        },
+        "integrateFunctionsWithApim": {
+            "value": true
+        },
+        "integrateContainerAppsWithApim": {
+            "value": false
         }
     }
 }
