@@ -12,32 +12,6 @@ This repository demonstrates how to securely expose Azure Functions and other ba
 - **Automated setup** with infrastructure-as-code (Bicep) and deployment scripts
 - **Extensible architecture** ready for future backend types
 
-## Architecture Overview
-
-The solution uses a **modular approach** that separates concerns and supports independent lifecycle management:
-
-```
-┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│   APIM Module       │    │  Functions Module   │    │ Container Apps      │
-│   (Platform Team)   │    │  (App Team A)       │    │ (App Team B) 🚧     │
-│                     │    │                     │    │ [Work in Progress]  │
-│ • Gateway           │    │ • Function App      │    │ • Container App     │
-│ • Policies          │    │ • Storage Account   │    │ • Environment       │
-│ • Products          │    │ • App Service Plan  │    │ • Log Analytics     │
-└─────────────────────┘    └─────────────────────┘    └─────────────────────┘
-           │                           │                           │
-           └───────────────────────────┼───────────────────────────┘
-                                       │
-                    ┌─────────────────────┐
-                    │ APIM Integration    │
-                    │ Module              │
-                    │                     │
-                    │ • Backend Config    │
-                    │ • API Definitions   │
-                    │ • Auth Policies     │
-                    └─────────────────────┘
-```
-
 ## Deployment Scenarios
 
 This repository supports multiple deployment patterns. See [DEPLOYMENT-SCENARIOS.md](./DEPLOYMENT-SCENARIOS.md) for detailed scenarios.
