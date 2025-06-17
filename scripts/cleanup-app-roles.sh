@@ -9,8 +9,8 @@ if [ -z "$FUNC_EASYAUTH_APP_ID" ]; then
     exit 0
 fi
 
-if [ -z "$APIM_MI_CLIENTID" ]; then
-    echo "Warning: APIM_MI_CLIENTID not set. Skipping app role assignment cleanup."
+if [ -z "$APIM_PRINCIPAL_ID" ]; then
+    echo "Warning: APIM_PRINCIPAL_ID not set. Skipping app role assignment cleanup."
     exit 0
 fi
 
@@ -18,7 +18,7 @@ echo "Cleaning up app role assignments for APIM managed identity..."
 
 # Get the app role assignment ID
 ASSIGNMENT_ID=$(az rest --method GET \
-  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_MI_CLIENTID/appRoleAssignments" \
+  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_PRINCIPAL_ID/appRoleAssignments" \
   --query "value[?resourceId=='$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query id -o tsv)'].id" \
   -o tsv 2>/dev/null)
 
@@ -26,7 +26,7 @@ ASSIGNMENT_ID=$(az rest --method GET \
 if [ -n "$ASSIGNMENT_ID" ]; then
     echo "Removing app role assignment: $ASSIGNMENT_ID"
     az rest --method DELETE \
-      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_MI_CLIENTID/appRoleAssignments/$ASSIGNMENT_ID"
+      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_PRINCIPAL_ID/appRoleAssignments/$ASSIGNMENT_ID"
     echo "App role assignment removed successfully"
 else
     echo "No app role assignment found to remove"

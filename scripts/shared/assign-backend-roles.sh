@@ -21,7 +21,7 @@ echo "Assigning APIM managed identity roles for backend type: $BACKEND_TYPE"
 # Get the subscription ID and resource group from environment variables or azd env
 SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
 RESOURCE_GROUP_NAME=${AZURE_RESOURCE_GROUP}
-APIM_PRINCIPAL_ID=${APIM_MI_CLIENTID}
+APIM_PRINCIPAL_ID=${APIM_PRINCIPAL_ID}
 
 if [ -z "$SUBSCRIPTION_ID" ]; then
     echo "Error: AZURE_SUBSCRIPTION_ID environment variable not set"
@@ -34,7 +34,7 @@ if [ -z "$RESOURCE_GROUP_NAME" ]; then
 fi
 
 if [ -z "$APIM_PRINCIPAL_ID" ]; then
-    echo "Error: APIM_MI_CLIENTID environment variable not set"
+    echo "Error: APIM_PRINCIPAL_ID environment variable not set"
     exit 1
 fi
 

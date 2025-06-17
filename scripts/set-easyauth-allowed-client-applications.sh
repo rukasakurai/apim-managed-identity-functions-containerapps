@@ -1,5 +1,6 @@
 #!/bin/bash
-# This script fetches the APIM managed identity client ID and updates the Function App's Easy Auth allowedClientApplications
+# This script updates the Function App's Easy Auth allowedClientApplications with the APIM managed identity client ID
+# The APIM principal ID (object ID) is provided from Bicep output, and this script converts it to the client ID (app ID)
 # Updated to use stable Azure Web Apps REST API version: 2023-12-01
 echo "Running set-easyauth-allowed-client-applications.sh script..."
 
@@ -14,33 +15,29 @@ fi
 
 # Required environment variables:
 #   AZURE_RESOURCE_GROUP - the resource group name
-#   apimServiceName      - the APIM resource name
-#   functionAppName   - the Function App resource name
+#   functionAppName      - the Function App resource name
+#   APIM_PRINCIPAL_ID    - the APIM managed identity principal ID (from Bicep output)
 
-if [[ -z "$AZURE_RESOURCE_GROUP" || -z "$apimServiceName" || -z "$functionAppName" ]]; then
-  echo "ERROR: AZURE_RESOURCE_GROUP, apimServiceName, and functionAppName must be set."
+if [[ -z "$AZURE_RESOURCE_GROUP" || -z "$functionAppName" ]]; then
+  echo "ERROR: AZURE_RESOURCE_GROUP and functionAppName must be set."
   exit 1
 fi
 
-# Get APIM principalId (objectId of managed identity)
-echo "Getting APIM principal ID..."
-APIM_PRINCIPAL_ID=$(az resource show \
-  --resource-group "$AZURE_RESOURCE_GROUP" \
-  --name "$apimServiceName" \
-  --resource-type "Microsoft.ApiManagement/service" \
-  --query "identity.principalId" -o tsv)
-
-if [ -z "$APIM_PRINCIPAL_ID" ]; then
-  echo "ERROR: Could not retrieve APIM principal ID"
-  echo "Resource group: $AZURE_RESOURCE_GROUP"
-  echo "APIM service name: $apimServiceName"
-  exit 1
+# Accept APIM_PRINCIPAL_ID as an argument if not set as env var
+if [[ -z "$APIM_PRINCIPAL_ID" ]]; then
+  if [[ -n "$1" ]]; then
+    APIM_PRINCIPAL_ID="$1"
+  else
+    echo "ERROR: APIM_PRINCIPAL_ID must be set as an environment variable or provided as the first argument."
+    echo "This should be the principal ID (object ID) from the APIM Bicep output."
+    exit 1
+  fi
 fi
 
 echo "APIM principal ID: $APIM_PRINCIPAL_ID"
 
-# Get APIM clientId (appId of service principal)
-echo "Getting APIM client ID..."
+# Get APIM clientId (appId of service principal) from the provided principal ID
+echo "Getting APIM client ID from principal ID..."
 APIM_CLIENT_ID=$(az ad sp show --id "$APIM_PRINCIPAL_ID" --query appId -o tsv)
 
 if [ -z "$APIM_CLIENT_ID" ]; then
@@ -74,7 +71,7 @@ echo "Checking Easy Auth status..."
 AUTH_ENABLED=$(az webapp auth show \
   --name "$functionAppName" \
   --resource-group "$AZURE_RESOURCE_GROUP" \
-  --query "platform.enabled" -o tsv 2>/dev/null || echo "false")
+  --query "enabled" -o tsv 2>/dev/null || echo "false")
 
 if [ "$AUTH_ENABLED" != "true" ]; then
   echo "ERROR: Easy Auth is not enabled for Function App '$functionAppName'"

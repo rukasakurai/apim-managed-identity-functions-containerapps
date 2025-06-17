@@ -65,19 +65,18 @@ echo "Found app role ID: $ROLE_ID"
 
 # Check if the app role assignment already exists
 EXISTING_ASSIGNMENT=$(az rest --method GET \
-  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_MI_CLIENTID/appRoleAssignments" \
+  --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_PRINCIPAL_ID/appRoleAssignments" \
   --query "value[?resourceId=='$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query id -o tsv)' && appRoleId=='$ROLE_ID'].id" \
   -o tsv 2>/dev/null)
 
 if [ -n "$EXISTING_ASSIGNMENT" ]; then
     echo "App role assignment already exists (ID: $EXISTING_ASSIGNMENT). Skipping creation."
-else
-    echo "Creating new app role assignment..."
+else    echo "Creating new app role assignment..."
     # Create the assignment with Microsoft Graph via az rest
     az rest --method POST \
-      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_MI_CLIENTID/appRoleAssignments" \
+      --url "https://graph.microsoft.com/v1.0/servicePrincipals/$APIM_PRINCIPAL_ID/appRoleAssignments" \
       --body '{
-          "principalId":"'$APIM_MI_CLIENTID'",
+          "principalId":"'$APIM_PRINCIPAL_ID'",
           "resourceId":"'"$(az ad sp show --id $FUNC_EASYAUTH_APP_ID --query id -o tsv)"'",
           "appRoleId":"'$ROLE_ID'"
         }' \
