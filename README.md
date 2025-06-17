@@ -58,7 +58,7 @@ Before running `azd up`, you must create a Microsoft Entra ID app registration f
    - Click **Register**.
 
 2. **Configure**: Expose an API → Set Application ID URI to `api://{client-id}`
-3. **Cppy**: Copy the client ID. When running `azd up`, you will be prompted for it
+3. **Copy**: Copy the client ID. When running `azd up`, you will be prompted for it
 
 > **Why needed**: For JWT authentication between APIM and Functions.
 
