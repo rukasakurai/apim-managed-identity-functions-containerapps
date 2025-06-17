@@ -65,21 +65,21 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-05-01' = {
   }
 }
 
-// Generic operation for the backend (covers all paths and methods)
-resource genericOperation 'Microsoft.ApiManagement/service/apis/operations@2024-05-01' = {
+// Simple operation that matches the Azure Function's hello endpoint
+resource helloOperation 'Microsoft.ApiManagement/service/apis/operations@2024-05-01' = {
   parent: api
-  name: 'all-operations'
+  name: 'hello-get'
   properties: {
-    displayName: 'All Operations'
-    method: '*'
-    urlTemplate: '/*'
-    description: 'Proxy all operations to backend'
+    displayName: 'Get Hello'
+    method: 'GET'
+    urlTemplate: '/hello'
+    description: 'Hello world endpoint from Azure Function'
   }
 }
 
-// Policy for managed identity authentication
-resource operationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-05-01' = {
-  parent: genericOperation
+// Policy for managed identity authentication on the hello operation
+resource helloOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-05-01' = {
+  parent: helloOperation
   name: 'policy'
   properties: {
     value: '<policies>\n  <inbound>\n    <authentication-managed-identity resource="api://${backendAppId}" output-token-variable-name="accessToken" />\n    <set-header name="Authorization" exists-action="override">\n      <value>@("Bearer " + context.Variables["accessToken"])</value>\n    </set-header>\n    <set-backend-service backend-id="${backend.name}" />\n  </inbound>\n  <backend><base /></backend>\n  <outbound><base /></outbound>\n  <on-error><base /></on-error>\n</policies>'
