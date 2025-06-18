@@ -82,7 +82,7 @@ resource helloOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/p
   parent: helloOperation
   name: 'policy'
   properties: {
-    value: '<policies>\n  <inbound>\n    <authentication-managed-identity resource="api://${backendAppId}" output-token-variable-name="accessToken" />\n    <set-header name="Authorization" exists-action="override">\n      <value>@("Bearer " + context.Variables["accessToken"])</value>\n    </set-header>\n    <set-backend-service backend-id="${backend.name}" />\n  </inbound>\n  <backend><base /></backend>\n  <outbound><base /></outbound>\n  <on-error><base /></on-error>\n</policies>'
+    value: '<policies>\n  <inbound>\n    <authentication-managed-identity resource="api://${backendAppId}"/>\n    <set-backend-service backend-id="${backend.name}" />\n  </inbound>\n  <backend><base /></backend>\n  <outbound><base /></outbound>\n  <on-error><base /></on-error>\n</policies>'
   }
 }
 
