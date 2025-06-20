@@ -97,39 +97,3 @@ azd provision --parameters deployApim=false deployFunctions=false integrateFunct
 ### Container Apps Support (Work in Progress)
 
 ⚠️ **Current Status**: The Container Apps infrastructure module is implemented in `infra/modules/container-apps/` but not yet integrated into the main deployment pipeline.
-
-**What's completed**:
-
-- Container Apps infrastructure module with authentication support
-- WebSocket application code in `services/websocket-app/`
-
-**What's needed to complete**:
-
-1. Integration into the main orchestration template (`infra/main.bicep`)
-2. Addition of Container Apps service to `azure.yaml`
-3. Creation of Container Apps-specific deployment parameters
-
-### Example for Container Apps (when completed):
-
-```bash
-# Future: Deploy Container Apps with APIM
-azd provision --parameters deployApim=true deployContainerApps=true integrateContainerAppsWithApim=true
-```
-
-## Migration from Monolithic to Modular
-
-To migrate from the old monolithic deployment:
-
-1. **Backup your current deployment**
-2. **Deploy new modular APIM**: Use APIM-only deployment
-3. **Deploy Functions separately**: Use Functions with existing APIM
-4. **Verify functionality**: Test all endpoints
-5. **Clean up old resources**: Remove the monolithic deployment
-
-## Best Practices
-
-1. **Platform Teams**: Deploy APIM once, share across teams
-2. **Application Teams**: Deploy backends independently, integrate with shared APIM
-3. **Environment Separation**: Use different parameter files for dev/test/prod
-4. **Resource Naming**: Use consistent naming conventions across modules
-5. **Security**: Ensure proper RBAC assignments between APIM and backends
