@@ -14,7 +14,7 @@ This repository demonstrates how to securely expose Azure Functions and other ba
 
 ## Deployment Scenarios
 
-This repository supports multiple deployment patterns. See [DEPLOYMENT-SCENARIOS.md](./DEPLOYMENT-SCENARIOS.md) for detailed scenarios.
+This repository supports multiple deployment patterns. See [DEPLOYMENT-SCENARIOS.md](./docs/DEPLOYMENT-SCENARIOS.md) for detailed scenarios.
 
 ## Quick Start
 
@@ -77,7 +77,7 @@ or test from the APIs section of the Azure API Management resource in Azure Port
 
 ## Troubleshooting
 
-If you encounter issues during deployment or testing, please refer to [`troubleshooting.md`](./troubleshooting.md)
+If you encounter issues during deployment or testing, please refer to [`troubleshooting.md`](./docs/troubleshooting.md)
 
 ## Contributing
 

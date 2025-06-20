@@ -21,6 +21,6 @@ We welcome GitHub Issues and Pull Requests! **No guarantee of acceptance** - thi
 
 ## Quick Help
 
-- Check [`troubleshooting.md`](./troubleshooting.md)
+- Check [`troubleshooting.md`](./docs/troubleshooting.md)
 - Search existing issues first
 - Create new issue for questions
