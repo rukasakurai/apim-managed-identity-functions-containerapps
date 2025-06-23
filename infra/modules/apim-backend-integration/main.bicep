@@ -26,6 +26,9 @@ param apiDisplayName string
 @description('The backend authentication app ID (for managed identity auth)')
 param backendAppId string
 
+@description('The backend authentication app ID for the Container Apps (for managed identity auth)')
+param containerAppsAuthAppId string
+
 @description('The backend name identifier')
 param backendName string
 
@@ -104,25 +107,22 @@ resource websocketApi 'Microsoft.ApiManagement/service/apis@2024-05-01' = {
     subscriptionRequired: false
     apiType: 'websocket'
     type: 'websocket'
+    protocols: ['wss']
+    path: 'wss'
   }
 }
 
-resource websocketOperation 'Microsoft.ApiManagement/service/apis/operations@2024-05-01' = {
+// Tell Bicep that the onHandshake operation already exists
+resource handshakeOp 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' existing = {
   parent: websocketApi
-  name: 'websocket-get'
-  properties: {
-    displayName: 'onHandshake'
-    method: 'GET'
-    urlTemplate: '/ws'
-    description: 'WebSocket endpoint from Container App'
-  }
+  name: 'onHandshake'
 }
 
 resource websocketOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-05-01' = {
-  parent: websocketOperation
+  parent: handshakeOp
   name: 'policy'
   properties: {
-    value: '<policies>\n  <inbound>\n    <set-backend-service base-url="wss://${websocketAppFqdn}" />\n  </inbound>\n  <backend><base /></backend>\n  <outbound><base /></outbound>\n  <on-error><base /></on-error>\n</policies>'
+    value: '<policies>\n  <inbound>\n    <authentication-managed-identity resource="api://${containerAppsAuthAppId}"/>\n    <set-backend-service base-url="wss://${websocketAppFqdn}" />\n  </inbound>\n  <backend><base /></backend>\n  <outbound><base /></outbound>\n  <on-error><base /></on-error>\n</policies>'
   }
 }
 

@@ -37,6 +37,9 @@ param containerRegistryName string
 @description('The name of the user-assigned identity')
 param acaIdentityName string = '${environmentName}-aca-identity'
 
+@description('The client ID of the Entra app registration for Container Apps Easy Auth')
+param containerAppsAuthAppId string = ''
+
 // Variables for resource naming
 // Ensure names stay within Azure limits (32 chars for Container Apps)
 var shortResourceToken = take(resourceToken, 6) // Use only first 6 chars of resource token
@@ -224,6 +227,29 @@ resource websocketApp 'Microsoft.App/containerApps@2024-03-01' = {
 
       // Graceful termination
       terminationGracePeriodSeconds: 30
+    }
+  }
+}
+
+// Easy Auth configuration for the websocket app
+resource websocketAppAuth 'Microsoft.App/containerApps/authConfigs@2023-11-02-preview' = {
+  name: 'current'
+  parent: websocketApp
+  properties: {
+    platform: {
+      enabled: true
+      identityProviders: {
+        azureActiveDirectory: {
+          enabled: true
+          registration: {
+            clientId: containerAppsAuthAppId
+            openIdIssuer: 'https://login.microsoftonline.com/${tenant().tenantId}/v2.0'
+          }
+          login: {
+            loginParameters: []
+          }
+        }
+      }
     }
   }
 }

@@ -18,15 +18,15 @@ This repository supports multiple deployment patterns. See [DEPLOYMENT-SCENARIOS
 
 ## Quick Start
 
-### Create App Registration for Azure Function Authentication
+### Create App Registrations for Azure Function Authentication and for Azure Container Apps Authentication
 
-Before running `azd up`, you must create a Microsoft Entra ID app registration for your Azure Function authentication.
+Before running `azd up`, you must create a Microsoft Entra ID app registration for your Azure Function and Azure Container Apps authentication.
 
 1. **Create an App Registration**
 
    - Go to [Azure Portal > Microsoft Entra ID > App registrations](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade).
    - Click **New registration**.
-   - Enter a name (e.g., `my-functionapp-auth`).
+   - Enter a name (e.g., `my-functionapp-auth`, `my-containerapp-auth`).
    - Leave the default account type: **Accounts in this organizational directory only (Single tenant)**.
    - Leave Redirect URI blank.
    - Click **Register**.
@@ -34,7 +34,7 @@ Before running `azd up`, you must create a Microsoft Entra ID app registration f
 2. **Configure**: Expose an API → Set Application ID URI to `api://{client-id}`
 3. **Copy**: Copy the client ID. When running `azd up`, you will be prompted for it
 
-> **Why needed**: For JWT authentication between APIM and Functions.
+> **Why needed**: For JWT authentication between APIM and Functions/ContainerApps.
 
 ### Provision & Deploy
 

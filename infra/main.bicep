@@ -31,6 +31,9 @@ param deployFunctions bool = true
 @description('The clientId of the Entra app registration for the Function App')
 param functionAuthAppId string
 
+@description('The clientId of the Entra app registration for Container Apps')
+param containerAppsAuthAppId string
+
 // Integration parameters
 @description('Integrate Functions with APIM')
 param integrateFunctionsWithApim bool = true
@@ -82,6 +85,7 @@ module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = 
     backendAppId: functionAuthAppId
     backendName: 'hello-function'
     websocketAppFqdn: websocketAppModule.outputs.websocketAppFqdn
+    containerAppsAuthAppId: containerAppsAuthAppId
   }
 }
 
