@@ -1,15 +1,5 @@
 # WebSocket Hello World Application on Azure Container Apps
 
-This project demonstrates a WebSocket application deployed to Azure Container Apps with proper infrastructure setup including Container Registry, Log Analytics, and Managed Identity.
-
-## Architecture
-
-- **Azure Container Apps**: Hosts the WebSocket application
-- **Azure Container Registry**: Stores the container image
-- **Azure Log Analytics**: Provides monitoring and logging
-- **User-Assigned Managed Identity**: Secure access to Azure resources
-- **Optional API Management**: Can be integrated for API gateway functionality
-
 ## WebSocket Application Features
 
 The WebSocket server provides:

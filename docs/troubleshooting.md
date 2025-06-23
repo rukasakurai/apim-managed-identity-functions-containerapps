@@ -9,7 +9,7 @@ sequenceDiagram
     participant Client
     participant APIM as API Management
     participant Entra as Microsoft Entra ID
-    participant MI as User Assigned Managed Identity
+    participant MI as Managed Identity
     participant Function as Azure Function (Private)
 
     Client->>APIM: Call API
@@ -57,7 +57,7 @@ sequenceDiagram
     participant Client
     participant APIM as API Management
     participant Entra as Microsoft Entra ID
-    participant MI as User Assigned Managed Identity
+    participant MI as Managed Identity
     participant Function as Azure Function (Private)
 
     Client->>APIM: Call API

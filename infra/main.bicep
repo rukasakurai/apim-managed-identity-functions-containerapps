@@ -35,6 +35,13 @@ param functionAuthAppId string
 @description('Integrate Functions with APIM')
 param integrateFunctionsWithApim bool = true
 
+// WebSocket App parameters
+@description('Deploy WebSocket App')
+param deployWebsocketApp bool = true
+
+@description('WebSocket application port')
+param websocketPort int = 8080
+
 // Variables
 var apimServiceName = deployApim ? apimModule.outputs.apimServiceName : existingApimServiceName
 
@@ -74,6 +81,32 @@ module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = 
     apiDisplayName: 'Hello Function API'
     backendAppId: functionAuthAppId
     backendName: 'hello-function'
+  }
+}
+
+// Deploy platform module (provisions Log Analytics workspace)
+module platformModule 'modules/platform/main.bicep' = {
+  name: 'platform-deployment'
+  params: {
+    resourcePrefix: resourcePrefix
+    location: location
+  }
+}
+
+// Deploy WebSocket App module
+module websocketAppModule 'modules/container-apps/main.bicep' = if (deployWebsocketApp) {
+  name: 'websocket-app-deployment'
+  params: {
+    resourcePrefix: resourcePrefix
+    location: location
+    environmentName: environmentName
+    resourceToken: uniqueString(resourceGroup().id)
+    tags: {}
+    logAnalyticsWorkspaceCustomerId: platformModule.outputs.logAnalyticsWorkspaceCustomerId
+    logAnalyticsWorkspaceSharedKey: platformModule.outputs.logAnalyticsWorkspaceKey
+    containerRegistryId: platformModule.outputs.acrResourceId
+    containerRegistryName: platformModule.outputs.acrName
+    websocketPort: websocketPort
   }
 }
 
@@ -128,3 +161,18 @@ output resourceGroupId string = resourceGroup().id
 
 @description('Function App App ID for Easy Auth')
 output functionAuthAppId string = functionAuthAppId
+
+@description('WebSocket App Name')
+output websocketAppName string = deployWebsocketApp ? websocketAppModule.outputs.websocketAppName : ''
+
+@description('WebSocket App FQDN')
+output websocketAppFqdn string = deployWebsocketApp ? websocketAppModule.outputs.websocketAppFqdn : ''
+
+@description('WebSocket App URL')
+output websocketAppUrl string = deployWebsocketApp ? websocketAppModule.outputs.websocketAppUrl : ''
+
+@description('Azure Container Registry endpoint for azd')
+output AZURE_CONTAINER_REGISTRY_ENDPOINT string = platformModule.outputs.acrLoginServer
+
+@description('ACR resource id')
+output acrResourceId string = platformModule.outputs.acrResourceId

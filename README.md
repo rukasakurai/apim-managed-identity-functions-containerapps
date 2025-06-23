@@ -42,6 +42,10 @@ Before running `azd up`, you must create a Microsoft Entra ID app registration f
 azd up
 ```
 
+### Approximate Time for `azd up`
+
+The `azd up` command typically takes around x minutes to complete, depending on your network speed and the complexity of the resources being provisioned.
+
 ### Manually Configure Allowed Client Applications for Azure Functions Authentication
 
 If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`) is not working, you can manually configure the **Allowed client applications** for Azure App Service Authentication (Easy Auth) on your Azure Function. This is required to allow your API Management (APIM) instance (using its managed identity) to call the Azure Function when App Service Authentication is enabled.
@@ -49,7 +53,7 @@ If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`)
 1. **Obtain the Client ID of the APIM Managed Identity**
 
    - Go to [Azure Portal > API Management > Your APIM instance > Identity](https://portal.azure.com/).
-   - Under **System assigned managed identity** or **User assigned managed identities**, copy the **Object (principal) ID**
+   - Under **System assigned managed identity**, copy the **Object (principal) ID**
    - Go to your Enterprise Application section of Entra and search for the copied Object ID, and get the Client ID
 
 2. **Set Allowed Client Applications in Azure Function Authentication**

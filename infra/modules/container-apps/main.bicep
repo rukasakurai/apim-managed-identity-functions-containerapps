@@ -18,27 +18,24 @@ param resourceToken string = uniqueString(resourceGroup().id)
 @description('Tags to apply to all resources')
 param tags object = {}
 
-@description('User-assigned managed identity resource ID')
-param userAssignedIdentityId string
+@description('Log Analytics workspace customer id (GUID) for monitoring')
+param logAnalyticsWorkspaceCustomerId string
 
-@description('Principal ID of the user-assigned managed identity')
-param userAssignedIdentityPrincipalId string
-
-@description('Log Analytics workspace ID for monitoring')
-param logAnalyticsWorkspaceId string
-
-@description('Log Analytics workspace key for monitoring')
+@description('Log Analytics workspace shared key for monitoring')
 @secure()
-param logAnalyticsWorkspaceKey string
-
-@description('Container registry server URL')
-param containerRegistryServer string
-
-@description('Whether to enable internal load balancer only')
-param internalLoadBalancerOnly bool = false
+param logAnalyticsWorkspaceSharedKey string
 
 @description('WebSocket application port')
 param websocketPort int = 8080
+
+@description('The resource ID of the Azure Container Registry')
+param containerRegistryId string
+
+@description('The name of the Azure Container Registry')
+param containerRegistryName string
+
+@description('The name of the user-assigned identity')
+param acaIdentityName string = '${environmentName}-aca-identity'
 
 // Variables for resource naming
 // Ensure names stay within Azure limits (32 chars for Container Apps)
@@ -48,6 +45,10 @@ var websocketAppName = '${take(resourcePrefix, 10)}-ws-${shortResourceToken}'
 // Use base image for initial deployment - update after building custom image
 var containerImageName = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
 
+resource userAssignedManagedIdentityForContainerApp 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (!empty(acaIdentityName)) {
+  name: acaIdentityName
+  location: location
+}
 // Container Apps Environment
 resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: containerAppEnvironmentName
@@ -60,17 +61,10 @@ resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' 
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
-        customerId: logAnalyticsWorkspaceId
-        sharedKey: logAnalyticsWorkspaceKey
+        customerId: logAnalyticsWorkspaceCustomerId
+        sharedKey: logAnalyticsWorkspaceSharedKey
       }
     }
-
-    // Network configuration
-    vnetConfiguration: internalLoadBalancerOnly
-      ? {
-          internal: true
-        }
-      : null
 
     // Zone redundancy for high availability in production
     zoneRedundant: environmentName == 'prod'
@@ -95,13 +89,18 @@ resource websocketApp 'Microsoft.App/containerApps@2024-03-01' = {
     'azd-service-name': 'websocket-app'
     'azd-env-name': environmentName
   })
+  // It is critical that the identity is granted ACR pull access before the app is created
+  // otherwise the container app will throw a provision error
+  // This also forces us to use an user assigned managed identity since there would no way to
+  // provide the system assigned identity with the ACR pull access before the app is created
+  dependsOn: [
+    acrPullRoleAssignment
+  ]
 
   // Managed Identity configuration
   identity: {
     type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${userAssignedIdentityId}': {}
-    }
+    userAssignedIdentities: !empty(acaIdentityName) ? { '${userAssignedManagedIdentityForContainerApp.id}': {} } : null
   }
 
   properties: {
@@ -119,19 +118,10 @@ resource websocketApp 'Microsoft.App/containerApps@2024-03-01' = {
       // Maximum inactive revisions to keep
       maxInactiveRevisions: 3
 
-      // Container registry configuration with managed identity
-      registries: [
-        {
-          server: containerRegistryServer
-          identity: userAssignedIdentityId
-        }
-      ]
-
       // Ingress configuration for WebSocket traffic
       ingress: {
         external: true
         targetPort: websocketPort
-        transport: 'tcp' // WebSocket requires TCP transport
         allowInsecure: false // Force HTTPS in production
 
         // Traffic distribution (100% to latest revision)
@@ -141,14 +131,6 @@ resource websocketApp 'Microsoft.App/containerApps@2024-03-01' = {
             latestRevision: true
           }
         ]
-
-        // CORS policy for web clients
-        corsPolicy: {
-          allowedOrigins: ['*'] // Configure appropriately for production
-          allowedMethods: ['GET', 'POST', 'OPTIONS']
-          allowedHeaders: ['*']
-          allowCredentials: false
-        }
 
         // Additional port mappings for health checks
         additionalPortMappings: [
@@ -206,10 +188,6 @@ resource websocketApp 'Microsoft.App/containerApps@2024-03-01' = {
               name: 'ENVIRONMENT'
               value: environmentName
             }
-            {
-              name: 'AZURE_CLIENT_ID'
-              value: userAssignedIdentityPrincipalId
-            }
           ]
 
           // Health probes
@@ -243,6 +221,27 @@ resource websocketApp 'Microsoft.App/containerApps@2024-03-01' = {
       // Graceful termination
       terminationGracePeriodSeconds: 30
     }
+  }
+}
+
+// Reference the ACR as an existing resource
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
+  name: containerRegistryName
+}
+
+var acrPullRole = subscriptionResourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+)
+
+// Assign AcrPull role to the managed identity
+resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: containerRegistry
+  name: guid(subscription().id, resourceGroup().id, acrPullRole)
+  properties: {
+    roleDefinitionId: acrPullRole
+    principalId: userAssignedManagedIdentityForContainerApp.properties.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 
