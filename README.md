@@ -85,7 +85,7 @@ or test from the APIs section of the Azure API Management resource in Azure Port
 azd down --force --purge
 ```
 
-> **Note**: The `azd down --force --purge` command can about 20 minutes to complete.
+> **Note**: The `azd down --force --purge` command can take about 20 minutes to complete.
 
 ## Troubleshooting
 
