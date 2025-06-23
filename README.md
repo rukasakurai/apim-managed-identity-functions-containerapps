@@ -79,6 +79,12 @@ curl "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -
 
 or test from the APIs section of the Azure API Management resource in Azure Portal
 
+## Cleanup
+
+```sh
+azd down --force --purge
+```
+
 ## Troubleshooting
 
 If you encounter issues during deployment or testing, please refer to [`troubleshooting.md`](./docs/troubleshooting.md)
