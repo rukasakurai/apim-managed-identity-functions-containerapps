@@ -29,6 +29,9 @@ param backendAppId string
 @description('The backend name identifier')
 param backendName string
 
+@description('The FQDN of the websocket app (Container App)')
+param websocketAppFqdn string
+
 // Reference existing APIM service
 resource apimService 'Microsoft.ApiManagement/service@2024-05-01' existing = {
   name: apimServiceName
@@ -89,6 +92,38 @@ resource helloOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/p
 // Add API to the backend services product
 resource apiProduct 'Microsoft.ApiManagement/service/products/apis@2024-05-01' = {
   name: '${apimService.name}/backend-services/${api.name}'
+}
+
+resource websocketApi 'Microsoft.ApiManagement/service/apis@2024-05-01' = {
+  parent: apimService
+  name: 'websocket-app-api'
+  properties: {
+    displayName: 'WebSocket App API'
+    description: 'API for containerapp: websocket-app'
+    serviceUrl: 'wss://${websocketAppFqdn}'
+    subscriptionRequired: false
+    apiType: 'websocket'
+    type: 'websocket'
+  }
+}
+
+resource websocketOperation 'Microsoft.ApiManagement/service/apis/operations@2024-05-01' = {
+  parent: websocketApi
+  name: 'websocket-get'
+  properties: {
+    displayName: 'onHandshake'
+    method: 'GET'
+    urlTemplate: '/ws'
+    description: 'WebSocket endpoint from Container App'
+  }
+}
+
+resource websocketOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-05-01' = {
+  parent: websocketOperation
+  name: 'policy'
+  properties: {
+    value: '<policies>\n  <inbound>\n    <set-backend-service base-url="wss://${websocketAppFqdn}" />\n  </inbound>\n  <backend><base /></backend>\n  <outbound><base /></outbound>\n  <on-error><base /></on-error>\n</policies>'
+  }
 }
 
 // Outputs

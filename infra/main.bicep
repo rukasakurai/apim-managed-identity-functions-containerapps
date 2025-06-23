@@ -81,6 +81,7 @@ module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = 
     apiDisplayName: 'Hello Function API'
     backendAppId: functionAuthAppId
     backendName: 'hello-function'
+    websocketAppFqdn: websocketAppModule.outputs.websocketAppFqdn
   }
 }
 
