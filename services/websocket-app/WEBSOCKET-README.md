@@ -185,7 +185,7 @@ azd down
 
 This will delete the resource group and all contained resources.
 
-## Troubleshotting
+## Troubleshooting
 
 ```bash
 az containerapp logs show --name $websocketAppName --resource-group $AZURE_RESOURCE_GROUP
