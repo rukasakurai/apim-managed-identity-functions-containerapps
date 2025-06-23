@@ -15,6 +15,13 @@ services:
     project: ./services/hello-function
     language: python
     host: function
+  websocket-app:
+    project: ./services/websocket-app
+    language: python
+    host: containerapp
+    docker:
+      path: Dockerfile
+      context: .
 
 hooks:
   postprovision:
