@@ -76,8 +76,6 @@ resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' 
         workloadProfileType: 'Consumption'
       }
     ]
-    // Dapr configuration (optional - version is read-only)
-    daprConfiguration: {}
   }
 }
 
@@ -108,15 +106,21 @@ resource websocketApp 'Microsoft.App/containerApps@2024-03-01' = {
     environmentId: containerAppEnvironment.id
 
     // Workload profile
-    workloadProfileName: 'Consumption'
-
-    // Application configuration
+    workloadProfileName: 'Consumption' // Application configuration
     configuration: {
       // Active revisions mode - single for simple deployments
       activeRevisionsMode: 'Single'
 
       // Maximum inactive revisions to keep
       maxInactiveRevisions: 3
+
+      // Container registry configuration for ACR access
+      registries: [
+        {
+          server: '${containerRegistryName}.azurecr.io'
+          identity: userAssignedManagedIdentityForContainerApp.id
+        }
+      ]
 
       // Ingress configuration for WebSocket traffic
       ingress: {

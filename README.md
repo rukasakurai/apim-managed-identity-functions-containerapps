@@ -44,7 +44,7 @@ azd up
 
 ### Approximate Time for `azd up`
 
-The `azd up` command typically takes around x minutes to complete, depending on your network speed and the complexity of the resources being provisioned.
+The `azd up` command typically takes around 5 to 10 minutes to complete, depending on your network speed and the complexity of the resources being provisioned.
 
 ### Manually Configure Allowed Client Applications for Azure Functions Authentication
 
@@ -84,6 +84,8 @@ or test from the APIs section of the Azure API Management resource in Azure Port
 ```sh
 azd down --force --purge
 ```
+
+> **Note**: The `azd down --force --purge` command can about 20 minutes to complete.
 
 ## Troubleshooting
 
