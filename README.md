@@ -38,6 +38,13 @@ Before running `azd up`, you must create a Microsoft Entra ID app registration f
 
 ### Provision & Deploy
 
+## Prerequisites
+
+- **Docker Desktop** must be running before `azd up`
+- Verify with: `docker --version`
+
+> **Note**: The websocket-app service requires Docker for containerization. If Docker isn't running, deployment will fail with "Docker daemon is not running" error.
+
 ```sh
 azd up
 ```
