@@ -28,7 +28,6 @@ hooks:
     shell: sh
     run: |
       ./scripts/assign-app-role-to-managed-identities.sh
-      ./scripts/set-easyauth-allowed-client-applications.sh
   predown:
     shell: sh
     run: |

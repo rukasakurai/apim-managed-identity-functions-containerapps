@@ -55,7 +55,7 @@ The `azd up` command typically takes around 5 to 10 minutes to complete, dependi
 
 ### Manually Configure Allowed Client Applications for Azure Function Authentication and for Azure Container Apps Authentication
 
-If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`) is not working, you can manually configure the **Allowed client applications** for Easy Auth on your Azure Function and Azure Container App. This is required to allow your API Management (APIM) instance (using its managed identity) to call the Azure Function and Azure Container App when Easy Auth is enabled with Microsoft Entra ID as the authentication provider.
+> **Note**: The automation script (`scripts/set-easyauth-allowed-client-applications.sh`) is not working and not included in the azure.yaml, so you must manually configure the **Allowed client applications** for Easy Auth on your Azure Function and Azure Container App. This is required to allow your API Management (APIM) instance (using its managed identity) to call the Azure Function and Azure Container App when Easy Auth is enabled with only allowing requests from specific client applications.
 
 1. **Obtain the Client ID of the APIM Managed Identity**
 

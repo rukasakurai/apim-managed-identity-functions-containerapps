@@ -241,7 +241,12 @@ resource websocketAppAuth 'Microsoft.App/containerApps/authConfigs@2023-11-02-pr
         enabled: true
         registration: {
           clientId: containerAppsAuthAppId
-          openIdIssuer: '${environment().authentication.loginEndpoint}${tenant().tenantId}/v2.0'
+          openIdIssuer: 'https://sts.windows.net/${tenant().tenantId}/v2.0'
+        }
+        validation: {
+          allowedAudiences: [
+            'api://${containerAppsAuthAppId}'
+          ]
         }
       }
     }
