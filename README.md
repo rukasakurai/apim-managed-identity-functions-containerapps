@@ -46,9 +46,9 @@ azd up
 
 The `azd up` command typically takes around 5 to 10 minutes to complete, depending on your network speed and the complexity of the resources being provisioned.
 
-### Manually Configure Allowed Client Applications for Azure Functions Authentication
+### Manually Configure Allowed Client Applications for Azure Function Authentication and for Azure Container Apps Authentication
 
-If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`) is not working, you can manually configure the **Allowed client applications** for Azure App Service Authentication (Easy Auth) on your Azure Function. This is required to allow your API Management (APIM) instance (using its managed identity) to call the Azure Function when App Service Authentication is enabled.
+If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`) is not working, you can manually configure the **Allowed client applications** for Easy Auth on your Azure Function and Azure Container App. This is required to allow your API Management (APIM) instance (using its managed identity) to call the Azure Function and Azure Container App when Easy Auth is enabled with Microsoft Entra ID as the authentication provider.
 
 1. **Obtain the Client ID of the APIM Managed Identity**
 
@@ -57,15 +57,15 @@ If the automation script (`scripts/set-easyauth-allowed-client-applications.sh`)
    - Go to your Enterprise Application section of Entra and search for the copied Object ID, and get the Client ID
 
 2. **Set Allowed Client Applications in Azure Function Authentication**
-   - Go to [Azure Portal > Function App > Your Function App > Authentication](https://portal.azure.com/).
+   - Go to [Azure Portal > Your Function App / Container App > Authentication](https://portal.azure.com/).
    - Click on your authentication provider (e.g., **Microsoft** under **Identity providers**).
    - Under **Access control** (or **Advanced settings**), find the **Allowed client applications** field.
    - Paste the **Client ID** of your APIM managed identity into the list.
    - Save your changes.
 
-### Test
+### Test hello-function
 
-#### Test the Azure Function (should fail):
+#### Test the Azure Function endpoint (should fail):
 
 ```sh
 curl "https://$(azd env get-values | grep functionAppName | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
@@ -78,6 +78,34 @@ curl "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -
 ```
 
 or test from the APIs section of the Azure API Management resource in Azure Portal
+
+### Test websocket-app
+
+Install wscat to test WebSocket connections:
+
+```bash
+npm install -g wscat
+```
+
+#### Test the Azure Container App endpoint (should fail):
+
+```sh
+wscat -c "wss://$(azd env get-values | grep websocketAppFqdn | cut -d'=' -f2 | tr -d '"')"
+```
+
+Expected response: `error: Unexpected server response: 401`
+
+#### Test the Azure API Management endpoint (should work):
+
+```sh
+wscat -c "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -d '"').azure-api.net/wss"
+```
+
+After connecting, enter
+
+```
+{"type": "ping", "timestamp": "2024-01-01T12:00:00Z"}
+```
 
 ## Cleanup
 

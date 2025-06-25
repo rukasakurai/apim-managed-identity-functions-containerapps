@@ -1,0 +1,12 @@
+[
+    {
+        "allowedMemberTypes": [
+            "Application"
+        ],
+        "description": "Allows managed identities to access this application as themselves.",
+        "displayName": "access as application",
+        "id": "PLACEHOLDER_GUID",
+        "isEnabled": true,
+        "value": "access_as_application"
+    }
+]
