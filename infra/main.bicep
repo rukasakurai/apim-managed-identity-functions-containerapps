@@ -167,6 +167,9 @@ output resourceGroupId string = resourceGroup().id
 @description('Function App App ID for Easy Auth')
 output functionAuthAppId string = functionAuthAppId
 
+@description('Container Apps Auth App ID for Easy Auth')
+output containerAppsAuthAppId string = containerAppsAuthAppId
+
 @description('WebSocket App Name')
 output websocketAppName string = deployWebsocketApp ? websocketAppModule.outputs.websocketAppName : ''
 
