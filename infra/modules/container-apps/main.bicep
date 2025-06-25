@@ -28,9 +28,6 @@ param logAnalyticsWorkspaceSharedKey string
 @description('WebSocket application port')
 param websocketPort int = 8080
 
-@description('The resource ID of the Azure Container Registry')
-param containerRegistryId string
-
 @description('The name of the Azure Container Registry')
 param containerRegistryName string
 
@@ -38,7 +35,7 @@ param containerRegistryName string
 param acaIdentityName string = '${environmentName}-aca-identity'
 
 @description('The client ID of the Entra app registration for Container Apps Easy Auth')
-param containerAppsAuthAppId string = ''
+param containerAppsAuthAppId string
 
 // Variables for resource naming
 // Ensure names stay within Azure limits (32 chars for Container Apps)
@@ -238,16 +235,13 @@ resource websocketAppAuth 'Microsoft.App/containerApps/authConfigs@2023-11-02-pr
   properties: {
     platform: {
       enabled: true
-      identityProviders: {
-        azureActiveDirectory: {
-          enabled: true
-          registration: {
-            clientId: containerAppsAuthAppId
-            openIdIssuer: 'https://sts.windows.net/${tenant().tenantId}/v2.0'
-          }
-          login: {
-            loginParameters: []
-          }
+    }
+    identityProviders: {
+      azureActiveDirectory: {
+        enabled: true
+        registration: {
+          clientId: containerAppsAuthAppId
+          openIdIssuer: '${environment().authentication.loginEndpoint}${tenant().tenantId}/v2.0'
         }
       }
     }

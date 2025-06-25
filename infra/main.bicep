@@ -109,9 +109,9 @@ module websocketAppModule 'modules/container-apps/main.bicep' = if (deployWebsoc
     tags: {}
     logAnalyticsWorkspaceCustomerId: platformModule.outputs.logAnalyticsWorkspaceCustomerId
     logAnalyticsWorkspaceSharedKey: platformModule.outputs.logAnalyticsWorkspaceKey
-    containerRegistryId: platformModule.outputs.acrResourceId
     containerRegistryName: platformModule.outputs.acrName
     websocketPort: websocketPort
+    containerAppsAuthAppId: containerAppsAuthAppId
   }
 }
 
