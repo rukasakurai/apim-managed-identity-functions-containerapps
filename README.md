@@ -38,8 +38,6 @@ Before running `azd up`, you must create a Microsoft Entra ID app registration f
 
 ### Provision & Deploy
 
-## Prerequisites
-
 - **Docker Desktop** must be running before `azd up`
 - Verify with: `docker --version`
 
@@ -49,9 +47,11 @@ Before running `azd up`, you must create a Microsoft Entra ID app registration f
 azd up
 ```
 
-### Approximate Time for `azd up`
+> **Note**: The `azd up` command typically takes around 5 to 10 minutes to complete, depending on your network speed and the complexity of the resources being provisioned.
 
-The `azd up` command typically takes around 5 to 10 minutes to complete, depending on your network speed and the complexity of the resources being provisioned.
+### Manually Configure the Azure Container Apps Authentication
+
+The current Bicep deployment does **not** set up a working Easy Auth for Azure Container Apps. You must **delete** any Easy Auth configuration created by the Bicep deployment and manually configure authentication in the Azure Portal.
 
 ### Manually Configure Allowed Client Applications for Azure Function Authentication and for Azure Container Apps Authentication
 
