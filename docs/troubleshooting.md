@@ -76,7 +76,7 @@ sequenceDiagram
 ### Technical Deep Dives
 
 - **[Assigning API Permissions to Managed Identity using PowerShell](https://praveenkumarsreeram.com/2024/12/29/azure-assign-api-permissions-to-managed-identity-using-powershell/)**  
-  Detailed guide on automating app role assignments for managed identities, which complements the shell script approach used in this repository's `assign-apim-mi-to-functionapp-app-role.sh`.
+  Detailed guide on automating app role assignments for managed identities, which complements the shell script approach used in this repository's `assign-app-role-to-managed-identities.sh`.
 
 - **[Setting Microsoft Graph Permissions for Managed Identity](https://zenn.dev/ymasaoka/articles/how-to-set-msgraph-permission-managedid)** _(Japanese)_  
   Explains the concepts behind Microsoft Graph permissions and managed identity app role assignments, providing deeper understanding of the trust relationship configuration.

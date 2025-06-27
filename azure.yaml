@@ -27,8 +27,7 @@ hooks:
   postprovision:
     shell: sh
     run: |
-      ./scripts/assign-apim-mi-to-functionapp-app-role.sh
-      ./scripts/set-easyauth-allowed-client-applications.sh
+      ./scripts/assign-app-role-to-managed-identities.sh
   predown:
     shell: sh
     run: |

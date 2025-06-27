@@ -62,6 +62,12 @@ npm install -g wscat
 wscat -c wss://your-app-url.azurecontainerapps.io
 ```
 
+After connecting, enter
+
+```
+{"type": "ping", "timestamp": "2024-01-01T12:00:00Z"}
+```
+
 #### Message Formats
 
 The WebSocket server supports these message types:

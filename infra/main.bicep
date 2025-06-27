@@ -31,6 +31,9 @@ param deployFunctions bool = true
 @description('The clientId of the Entra app registration for the Function App')
 param functionAuthAppId string
 
+@description('The clientId of the Entra app registration for Container Apps')
+param containerAppsAuthAppId string
+
 // Integration parameters
 @description('Integrate Functions with APIM')
 param integrateFunctionsWithApim bool = true
@@ -81,6 +84,8 @@ module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = 
     apiDisplayName: 'Hello Function API'
     backendAppId: functionAuthAppId
     backendName: 'hello-function'
+    websocketAppFqdn: websocketAppModule.outputs.websocketAppFqdn
+    containerAppsAuthAppId: containerAppsAuthAppId
   }
 }
 
@@ -104,9 +109,9 @@ module websocketAppModule 'modules/container-apps/main.bicep' = if (deployWebsoc
     tags: {}
     logAnalyticsWorkspaceCustomerId: platformModule.outputs.logAnalyticsWorkspaceCustomerId
     logAnalyticsWorkspaceSharedKey: platformModule.outputs.logAnalyticsWorkspaceKey
-    containerRegistryId: platformModule.outputs.acrResourceId
     containerRegistryName: platformModule.outputs.acrName
     websocketPort: websocketPort
+    containerAppsAuthAppId: containerAppsAuthAppId
   }
 }
 
@@ -161,6 +166,9 @@ output resourceGroupId string = resourceGroup().id
 
 @description('Function App App ID for Easy Auth')
 output functionAuthAppId string = functionAuthAppId
+
+@description('Container Apps Auth App ID for Easy Auth')
+output containerAppsAuthAppId string = containerAppsAuthAppId
 
 @description('WebSocket App Name')
 output websocketAppName string = deployWebsocketApp ? websocketAppModule.outputs.websocketAppName : ''
