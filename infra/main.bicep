@@ -116,6 +116,31 @@ module websocketAppModule 'modules/container-apps.bicep' = if (deployWebsocketAp
   }
 }
 
+// ---------------------------------------------
+// ---------------------------------------------
+// Application Gateway (WAF) deployment
+// Simplicity choice: no feature flag; network + gateway always provisioned.
+// ---------------------------------------------
+module networkModule 'modules/network.bicep' = {
+  name: 'network-deployment'
+  params: {
+    resourcePrefix: resourcePrefix
+    environmentName: environmentName
+    location: location
+  }
+}
+
+module appGatewayModule 'modules/appgw.bicep' = {
+  name: 'app-gateway-deployment'
+  params: {
+    resourcePrefix: resourcePrefix
+    environmentName: environmentName
+    location: location
+    appGatewaySubnetId: networkModule.outputs.appGatewaySubnetId
+    logAnalyticsWorkspaceId: platformModule.outputs.logAnalyticsWorkspaceId
+  }
+}
+
 // Outputs
 @description('APIM Service Name')
 output apimServiceName string = deployApim ? apimModule.outputs.apimServiceName : existingApimServiceName
@@ -179,6 +204,15 @@ output websocketAppFqdn string = deployWebsocketApp ? websocketAppModule.outputs
 
 @description('WebSocket App URL')
 output websocketAppUrl string = deployWebsocketApp ? websocketAppModule.outputs.websocketAppUrl : ''
+
+@description('Application Gateway public FQDN')
+output appGatewayFqdn string = appGatewayModule.outputs.appGatewayFqdn
+
+@description('Application Gateway public IP')
+output appGatewayPublicIp string = appGatewayModule.outputs.publicIpAddress
+
+@description('Application Gateway resource Id')
+output appGatewayId string = appGatewayModule.outputs.appGatewayId
 
 @description('Azure Container Registry endpoint for azd')
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = platformModule.outputs.acrLoginServer

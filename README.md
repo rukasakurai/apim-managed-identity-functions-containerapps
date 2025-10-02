@@ -79,13 +79,20 @@ The current Bicep deployment does **not** set up a working Easy Auth for Azure C
 curl "https://$(azd env get-values | grep functionAppName | cut -d'=' -f2 | tr -d '"').azurewebsites.net/api/hello"
 ```
 
-#### Test the Azure API Management endpoint (should work):
+#### Test the Azure API Management endpoint (should fail once Gateway-only enforcement is applied):
 
 ```sh
 curl "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -d '"').azure-api.net/hello-api/hello"
 ```
 
-or test from the APIs section of the Azure API Management resource in Azure Portal
+#### Test via Application Gateway (should work):
+
+```sh
+APP_GW_FQDN=$(azd env get-values | grep appGatewayFqdn | cut -d'=' -f2 | tr -d '"')
+curl "https://$APP_GW_FQDN/hello-api/hello"
+```
+
+Expected: 200 OK with hello payload.
 
 ### Test websocket-app
 
@@ -103,16 +110,24 @@ wscat -c "wss://$(azd env get-values | grep websocketAppFqdn | cut -d'=' -f2 | t
 
 Expected response: `error: Unexpected server response: 401`
 
-#### Test the Azure API Management endpoint (should work):
+#### Test the Azure API Management endpoint (should fail once Gateway-only enforcement is applied):
 
 ```sh
 wscat -c "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -d '"').azure-api.net/wss"
+```
+
+#### Test via Application Gateway (should work):
+
+```sh
+APP_GW_FQDN=$(azd env get-values | grep appGatewayFqdn | cut -d'=' -f2 | tr -d '"')
+wscat -c "wss://$APP_GW_FQDN/wss"
 ```
 
 After connecting, enter
 
 ```
 {"type": "ping", "timestamp": "2024-01-01T12:00:00Z"}
+```
 
 ### Integration Tests (Automated)
 
@@ -120,7 +135,7 @@ You can run the automated integration tests (HTTP + WebSocket) instead of invoki
 
 Minimal usage:
 
-```bash
+```sh
 pip install -r tests/requirements.txt
 python tests/test_endpoints.py
 ```
