@@ -69,6 +69,7 @@ The current Bicep deployment does **not** set up a working Easy Auth for Azure C
    - Under **Access control** (or **Advanced settings**), find the **Allowed client applications** field.
    - Paste the **Client ID** of your APIM managed identity into the list.
    - Save your changes.
+   - (You may need to disable and then enable the authentication for the change to take effect. Otherwise traffic through API Magement might still result in a 503)
 
 ### Test hello-function
 
@@ -112,6 +113,16 @@ After connecting, enter
 
 ```
 {"type": "ping", "timestamp": "2024-01-01T12:00:00Z"}
+
+### Integration Tests (Automated)
+
+You can run the automated integration tests (HTTP + WebSocket) instead of invoking the manual commands above.
+
+Minimal usage:
+
+```bash
+pip install -r tests/requirements.txt
+python tests/test_endpoints.py
 ```
 
 ## Cleanup
