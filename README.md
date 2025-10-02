@@ -69,7 +69,7 @@ The current Bicep deployment does **not** set up a working Easy Auth for Azure C
    - Under **Access control** (or **Advanced settings**), find the **Allowed client applications** field.
    - Paste the **Client ID** of your APIM managed identity into the list.
    - Save your changes.
-   - (You may need to disable and then enable the authentication for the change to take effect. Otherwise traffic through API Magement might still result in a 503)
+   - (It make take some time for the change to take effect and/or you may need to disable and then enable the authentication for the change to take effect. Otherwise traffic through API Magement might still result in a 503/403)
 
 ### Test hello-function
 

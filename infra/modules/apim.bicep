@@ -66,6 +66,10 @@ resource apimService 'Microsoft.ApiManagement/service@2024-05-01' = {
   }
 }
 
+// NOTE: Using 2021-05-01-preview for diagnosticSettings because we need:
+// - logAnalyticsDestinationType = 'Dedicated' for resource-specific tables
+// - Newer categories like WebSocketConnectionLogs
+// GA (2016-09-01) lacks these capabilities.
 resource apimGatewayDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: '${resourceToken}-apim-gateway-logs'
   scope: apimService
@@ -76,6 +80,14 @@ resource apimGatewayDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-0
     logs: [
       {
         category: 'GatewayLogs'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+      {
+        category: 'WebSocketConnectionLogs'
         enabled: true
         retentionPolicy: {
           enabled: false
