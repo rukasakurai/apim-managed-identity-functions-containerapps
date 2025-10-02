@@ -71,6 +71,8 @@ resource apimGatewayDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-0
   scope: apimService
   properties: {
     workspaceId: logAnalyticsWorkspaceId
+    // Explicitly route to resource-specific ("Dedicated") tables (e.g. ApiManagementGatewayLogs)
+    logAnalyticsDestinationType: 'Dedicated'
     logs: [
       {
         category: 'GatewayLogs'
