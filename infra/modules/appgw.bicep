@@ -34,6 +34,19 @@ param owaspVersion string = '3.2'
 @allowed([1,2])
 param capacity int = 1
 
+// === Incremental addition: APIM backend (always present) ===
+// Decision pending (future): add HTTPS listener & certificate for end-user TLS termination.
+// Decision pending (future): autoscale vs fixed capacity beyond current 'capacity' param.
+// Decision pending (future): path-based routing vs single basic rule.
+// Decision pending (future): custom health probe path & advanced WAF exclusions.
+// Decision pending (future): HTTP->HTTPS redirect once HTTPS listener introduced.
+// Decision pending (future): TLS policy hardening (disable TLS 1.0/1.1) when HTTPS added.
+@description('Public hostname (FQDN) of the APIM gateway, e.g. myapim.azure-api.net. Used as backend FQDN.')
+param apimHostname string
+
+@description('Path used for health probing APIM; must return 200. Minimal default reuses existing hello operation. Future: replace with dedicated /healthz when added.')
+param healthProbePath string = '/hello-api/hello'
+
 // Internal naming & tokens
 var uniqueSuffix = substring(uniqueString(resourceGroup().id), 0, 6)
 var resourceToken = '${resourcePrefix}-${environmentName}-${uniqueSuffix}'
@@ -126,31 +139,37 @@ resource appGateway 'Microsoft.Network/applicationGateways@2024-07-01' = {
 				}
 			}
 		]
-		// Placeholder backend HTTP settings (HTTPS or advanced settings added later when real backends exist)
+		// APIM backend (HTTPS to APIM). Frontend remains HTTP for now; future: add HTTPS listener + redirect.
 		backendHttpSettingsCollection: [
 			{
-				name: 'bhs-placeholder'
+				name: 'bhs-apim'
 				properties: {
-					protocol: 'Http'
-					port: 80
+					protocol: 'Https'
+					port: 443
 					pickHostNameFromBackendAddress: false
+					hostName: apimHostname // Future decision: SNI override vs pickHostNameFromBackendAddress.
 					requestTimeout: 30
+					// Added minimal custom probe referencing existing functional path (avoid 502 due to default / probe returning 404).
+					probe: {
+						id: resourceId('Microsoft.Network/applicationGateways/probes', appGatewayName, 'probe-apim')
+					}
+					// Future decision: cookie-based affinity.
 				}
 			}
 		]
-		// Placeholder empty backend pool (legal; will show unhealthy until targets are added later)
 		backendAddressPools: [
 			{
-				name: 'bp-placeholder'
+				name: 'bp-apim'
 				properties: {
-					backendAddresses: []
+					backendAddresses: [
+						{ fqdn: apimHostname }
+					]
 				}
 			}
 		]
-		// Minimal basic rule tying listener to placeholder pool/settings
 		requestRoutingRules: [
 			{
-				name: 'rule-placeholder'
+				name: 'rule-apim'
 				properties: {
 					priority: 100
 					ruleType: 'Basic'
@@ -158,15 +177,34 @@ resource appGateway 'Microsoft.Network/applicationGateways@2024-07-01' = {
 						id: resourceId('Microsoft.Network/applicationGateways/httpListeners', appGatewayName, 'listener-http')
 					}
 					backendAddressPool: {
-						id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', appGatewayName, 'bp-placeholder')
+						id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', appGatewayName, 'bp-apim')
 					}
 					backendHttpSettings: {
-						id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', appGatewayName, 'bhs-placeholder')
+						id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', appGatewayName, 'bhs-apim')
 					}
+					// Future decision: convert to path-based routing or introduce multiple rules.
 				}
 			}
 		]
-		probes: [] // Added later when real backends are introduced.
+		probes: [
+			{
+				name: 'probe-apim'
+				properties: {
+					protocol: 'Https'
+					path: healthProbePath
+					host: apimHostname
+					interval: 30
+					timeout: 30
+					unhealthyThreshold: 3
+					pickHostNameFromBackendHttpSettings: false
+					match: {
+						statusCodes: [
+							'200'
+						]
+					}
+				}
+			}
+		] // Minimal probe now present; consider dedicated /healthz + broader status codes (e.g. 200-399) later.
 		urlPathMaps: [] // Path-based routing deferred.
 		rewriteRuleSets: [] // Rewrite rules deferred.
 		enableHttp2: true // Decision: enable HTTP/2 now (common best practice).

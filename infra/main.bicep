@@ -138,6 +138,8 @@ module appGatewayModule 'modules/appgw.bicep' = {
     location: location
     appGatewaySubnetId: networkModule.outputs.appGatewaySubnetId
     logAnalyticsWorkspaceId: platformModule.outputs.logAnalyticsWorkspaceId
+    // Derive public APIM gateway hostname (future decision: support custom domain or internal mode)
+    apimHostname: '${apimServiceName}.azure-api.net'
   }
 }
 

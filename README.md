@@ -89,8 +89,10 @@ curl "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | tr -
 
 ```sh
 APP_GW_FQDN=$(azd env get-values | grep appGatewayFqdn | cut -d'=' -f2 | tr -d '"')
-curl "https://$APP_GW_FQDN/hello-api/hello"
+curl "http://$APP_GW_FQDN/hello-api/hello"
 ```
+
+> Note: The Application Gateway currently exposes only an HTTP listener (no TLS yet). Once HTTPS is added, switch this command back to https://.
 
 Expected: 200 OK with hello payload.
 
