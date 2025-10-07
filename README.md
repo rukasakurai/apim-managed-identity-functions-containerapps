@@ -122,7 +122,7 @@ wscat -c "https://$(azd env get-values | grep apimServiceName | cut -d'=' -f2 | 
 
 ```sh
 APP_GW_FQDN=$(azd env get-values | grep appGatewayFqdn | cut -d'=' -f2 | tr -d '"')
-wscat -c "wss://$APP_GW_FQDN/wss"
+wscat -c "ws://$APP_GW_FQDN/wss"
 ```
 
 After connecting, enter
