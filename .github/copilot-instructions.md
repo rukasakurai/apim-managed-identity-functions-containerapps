@@ -3,6 +3,10 @@
 This is a sample implementation of an HTTP API and a WebSocket API using Azure Functions and Azure Container Apps, respectively. The APIs are secured using Azure API Management (APIM) with Managed Identity authentication.
 
 
+## Interaction Mode (Clarification & Verbosity)
+
+Before implementing or giving a final answer, ask clarifying questions, unless the intent is crystal clear.
+
 ## Minimal Code Change Policy
 
 When modifying existing code:
@@ -29,6 +33,9 @@ When modifying existing code:
 - Document non-obvious configuration choices
 - Explain security-related settings
 
+### Scripting
+- Use bash for scripting
+
 ### Documentation Standards
 
 #### Code Comments
@@ -48,3 +55,24 @@ When modifying existing code:
 - Always use system-assigned managed identity for Azure resources
 - Document the identity's role assignments
 - Use managed identity for service-to-service authentication
+
+### KQL Query Guidance (Concise)
+
+- In Log Analytics (Azure Monitor Logs), a blank line starts a new query; anything defined earlier in the previous block (let variables, inline functions, datatable bindings) is out of scope afterward.
+- Keep related definitions (variable/function/datatable) immediately above their first use (no blank line) unless you intend a new independent query.
+- Use a blank line only when you deliberately start a separate query (add a short comment if it’s not obvious).
+- Terminate statements with semicolons for clarity; add a brief “why” comment for non-trivial setup definitions.
+
+#### Schema Verification
+
+Priority order for identifying columns (no guessing):
+1. Check official docs / MS Learn for table schema (e.g. App Gateway access logs, APIM gateway logs). Copy the doc URL into a comment if you rely on it.
+2. Only if docs don’t clearly show the needed field, run one lightweight schema probe (`| getschema` OR `| take 5`). Never add both.
+3. Do not reference any column until confirmed by step 1 or 2.
+
+Rules:
+- No invented names. If uncertain, add `// TODO: confirm latency column` instead of guessing.
+- If you *must* proceed before confirmation, mark: `// ASSUMPTION:<what>` and remove before merge.
+- First exploratory change after a new table: ≤5 new lines.
+
+Goal: zero speculative columns; smallest diff that advances knowledge.

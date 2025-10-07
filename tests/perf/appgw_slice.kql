@@ -1,0 +1,5 @@
+let StartTime = ago(60m);
+let EndTime   = now();
+AGWAccessLogs
+| where TimeGenerated between (StartTime .. EndTime)
+| take 200 // safety cap during iteration
