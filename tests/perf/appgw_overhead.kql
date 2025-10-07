@@ -7,14 +7,12 @@
 let StartTime = ago(60m);
 let EndTime   = now();
 // Range helper (avoid '..' syntax which isn't valid in this context for a variable)
-let WindowStart = StartTime;
-let WindowEnd = EndTime;
 // Slices (raw). Keep light; project trimming deferred until schema confirmed.
 let Agw = AGWAccessLogs
-	| where TimeGenerated between (WindowStart .. WindowEnd)
+	| where TimeGenerated between (StartTime .. EndTime)
 	| extend Source = "AppGateway";
 let Apim = ApiManagementGatewayLogs
-	| where TimeGenerated between (WindowStart .. WindowEnd)
+	| where TimeGenerated between (StartTime .. EndTime)
 	| extend Source = "APIMGateway";
 // Union detail rows (cap for interactive runs; automation can remove 'take').
 let Detail = union Agw, Apim | take 400;
