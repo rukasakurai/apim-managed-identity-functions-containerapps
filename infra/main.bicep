@@ -221,3 +221,9 @@ output AZURE_CONTAINER_REGISTRY_ENDPOINT string = platformModule.outputs.acrLogi
 
 @description('ACR resource id')
 output acrResourceId string = platformModule.outputs.acrResourceId
+
+@description('Log Analytics Workspace resource ID (for scripts & integration)')
+output logAnalyticsWorkspaceId string = platformModule.outputs.logAnalyticsWorkspaceId
+
+@description('Log Analytics Workspace customer (workspace) ID GUID')
+output logAnalyticsWorkspaceCustomerId string = platformModule.outputs.logAnalyticsWorkspaceCustomerId

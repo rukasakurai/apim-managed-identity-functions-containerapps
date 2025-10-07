@@ -1,0 +1,25 @@
+// Title: App Gateway vs APIM Latency Overhead (Unified Query)
+// Purpose: Single executable query for automation. Slices (AppGw, APIM) defined once; ready for future join & overhead math.
+// Context: Client -> AppGw -> APIM -> AppGw -> Client.
+// NOTE: Overhead calculation intentionally deferred until correlation field verified (no speculative columns).
+// NOTE: Working draft; not yet deeply tested. Use with caution.
+// Parameters
+let StartTime = ago(60m);
+let EndTime   = now();
+// Range helper (avoid '..' syntax which isn't valid in this context for a variable)
+let WindowStart = StartTime;
+let WindowEnd = EndTime;
+// Slices (raw). Keep light; project trimming deferred until schema confirmed.
+let Agw = AGWAccessLogs
+	| where TimeGenerated between (WindowStart .. WindowEnd)
+	| extend Source = "AppGateway";
+let Apim = ApiManagementGatewayLogs
+	| where TimeGenerated between (WindowStart .. WindowEnd)
+	| extend Source = "APIMGateway";
+// Union detail rows (cap for interactive runs; automation can remove 'take').
+let Detail = union Agw, Apim | take 400;
+// Placeholder summary (counts only). Latency percentiles / overhead added after confirming shared key.
+let Summary = Detail
+	| summarize Count = count() by Source;
+// Output: detail followed by summary rows.
+union Detail, Summary
