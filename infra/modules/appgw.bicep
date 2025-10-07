@@ -88,7 +88,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2024-07-01' = {
       name: 'WAF_v2'
       tier: 'WAF_v2'
       capacity: capacity
-	  }
+      }
 		webApplicationFirewallConfiguration: {
 			enabled: true
 			firewallMode: 'Prevention' // Decision: start strict; adjust if false positives appear when backends added.
