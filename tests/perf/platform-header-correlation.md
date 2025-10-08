@@ -32,6 +32,8 @@
 ## KQL Query Skeleton
 > Only reference confirmed columns. If uncertain, run a one‑off schema probe for each table separately (`... | getschema`) – DO NOT commit probes.
 
+Maintained query file: [`./kql/platform_header_correlation_overhead.kql`](./kql/platform_header_correlation_overhead.kql). Treat the file as the authoritative source; the inline snippet below is a simplified snapshot and may drift.
+
 ```kql
 // Window (adjust as needed)
 let StartTime = ago(1h);

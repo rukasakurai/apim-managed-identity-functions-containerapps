@@ -1,0 +1,13 @@
+// Join, then compute AGW-added latency
+let apim =
+    ApiManagementGatewayLogs
+    | extend TraceId = tostring(parse_json(RequestHeaders)["x-appgw-trace-id"])
+    | project ApimTime=TimeGenerated, Url, TraceId, TotalTimeMs=todouble(TotalTime), ResponseCode;
+let agw =
+    AGWAccessLogs
+    | project TransactionId, AgwTime=TimeGenerated, TimeTakenSec=todouble(TimeTaken);
+apim
+| join kind=inner (agw) on $left.TraceId == $right.TransactionId
+// If TimeTaken is seconds (typical), convert to ms; adjust if yours is already ms.
+| extend AppGwAddedLatencyMs = TimeTakenSec * 1000.0 - TotalTimeMs
+| project ApimTime, AgwTime, Url, ResponseCode, TotalTimeMs, TimeTakenSec, AppGwAddedLatencyMs
