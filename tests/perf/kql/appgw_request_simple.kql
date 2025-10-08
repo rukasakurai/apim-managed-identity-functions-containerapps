@@ -1,0 +1,3 @@
+AGWAccessLogs
+| where ClientIp == "138.64.71.155"
+| project TimeGenerated, RequestUri, HttpStatus, TimeTaken, WafEvaluationTime, ClientIp

@@ -25,6 +25,7 @@ import json
 import os
 import subprocess
 import sys
+import uuid  # for per-request correlation id (rid) appended to query string
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
@@ -57,13 +58,15 @@ def color(txt: str, c: str) -> str:
 
 def load_env() -> dict:
     # Prefer explicit env vars (CI) then fall back to azd env get-values (local)
-    keys = ["functionAppName", "apimServiceName", "websocketAppFqdn"]
+    # Added appGatewayFqdn so we can exercise Application Gateway endpoints, matching README manual tests.
+    keys = ["functionAppName", "apimServiceName", "websocketAppFqdn", "appGatewayFqdn"]
     values = {}
     # Map CI variable names to internal keys
     mapping = {
         "FUNCTION_APP_NAME": "functionAppName",
         "APIM_SERVICE_NAME": "apimServiceName",
         "WEBSOCKET_APP_FQDN": "websocketAppFqdn",
+        "APP_GW_FQDN": "appGatewayFqdn",  # explicit CI var for App Gateway
     }
     for ci_key, internal in mapping.items():
         if ci_key in os.environ and os.environ[ci_key]:
@@ -101,14 +104,29 @@ class TestResult:
 # --- HTTP Tests ----------------------------------------------------------------------------------
 
 def test_http(url: str, expected_status: int) -> TestResult:
-    name = f"HTTP {url} -> {expected_status}"
+    """Issue a simple GET expecting a particular status.
+
+    Automatically appends a unique correlation id (rid) as a query parameter so the
+    same value flows into downstream logs (e.g. AGWAccessLogs.requestUri and
+    ApiManagementGatewayLogs.RequestUrl) for later correlation in KQL. We use a
+    GUID per request (uniqueness > ability to group) per requirement.
+    """
+    rid = uuid.uuid4().hex  # short, lowercase hex form
+    separator = '&' if '?' in url else '?'
+    traced_url = f"{url}{separator}rid={rid}"
+    name = f"HTTP {url} -> {expected_status}"  # keep name stable (no rid) for test summary grouping
     try:
-        resp = requests.get(url, timeout=15)
+        resp = requests.get(traced_url, timeout=15)
         if resp.status_code == expected_status:
-            return TestResult(name, True, f"status={resp.status_code}")
-        return TestResult(name, False, f"expected={expected_status} got={resp.status_code} body={resp.text[:200]}")
+            # Reduced redundancy: URL already appears in test name; include only status & rid for correlation
+            return TestResult(name, True, f"status={resp.status_code} rid={rid}")
+        return TestResult(
+            name,
+            False,
+            f"expected={expected_status} got={resp.status_code} rid={rid} body={resp.text[:200]}",
+        )
     except Exception as ex:  # noqa: BLE001
-        return TestResult(name, False, f"error={ex}")
+        return TestResult(name, False, f"error={ex} rid={rid}")
 
 
 # --- WebSocket Tests ----------------------------------------------------------------------------
@@ -155,9 +173,9 @@ async def test_ws(url: str, should_succeed: bool) -> TestResult:
                 await ws.send(json.dumps({"type": "ping"}))
                 _ = await ws.recv()
                 if should_succeed:
-                    return TestResult(name, True, "connected & message round-trip")
+                    return TestResult(name, True, f"connected & message round-trip url={url}")
                 # We expected failure but succeeded -> classify as failure
-                return TestResult(name, False, "connection succeeded but should fail")
+                return TestResult(name, False, f"connection succeeded but should fail url={url}")
         except TimeoutError as tex:  # noqa: PERF203  # opening handshake timeout
             # Success path: retry if attempts remain. Failure path: classify as blocked.
             if should_succeed and attempt <= retries:
@@ -180,21 +198,28 @@ async def run_all() -> int:
     function_app = env["functionAppName"]
     apim = env["apimServiceName"]
     ws_fqdn = env["websocketAppFqdn"]
+    app_gw = env["appGatewayFqdn"]  # Application Gateway is always deployed
 
     print(color("=== Integration Tests ===", "blue"))
     print(f"Function App: {function_app}")
     print(f"APIM Service: {apim}")
-    print(f"WebSocket FQDN: {ws_fqdn}\n")
+    print(f"WebSocket FQDN: {ws_fqdn}")
+    print(f"App Gateway FQDN: {app_gw}")
+    print("")
 
     tests: List[TestResult] = []
 
     # HTTP tests
     tests.append(test_http(f"https://{function_app}.azurewebsites.net/api/hello", 401))  # direct should fail
-    tests.append(test_http(f"https://{apim}.azure-api.net/hello-api/hello", 200))  # via APIM should pass
+    tests.append(test_http(f"https://{apim}.azure-api.net/hello-api/hello", 200))  # via APIM
+    # App Gateway currently exposes only HTTP (no TLS) per README; expect success (200)
+    tests.append(test_http(f"http://{app_gw}/hello-api/hello", 200))  # via App Gateway should work
 
     # WebSocket tests
     tests.append(await test_ws(f"wss://{ws_fqdn}", should_succeed=False))
-    tests.append(await test_ws(f"wss://{apim}.azure-api.net/wss", should_succeed=True))
+    tests.append(await test_ws(f"wss://{apim}.azure-api.net/wss", should_succeed=True))  # via APIM
+    # App Gateway listener is ws:// (no TLS yet) per README; expect success
+    tests.append(await test_ws(f"ws://{app_gw}/wss", should_succeed=True))
 
     # Summary
     passed = [t for t in tests if t.passed]

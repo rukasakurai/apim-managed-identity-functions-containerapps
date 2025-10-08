@@ -1,0 +1,4 @@
+AGWAccessLogs
+| join kind=fullouter AGWFirewallLogs on TransactionId
+| where ClientIp == "138.64.71.155" and HttpStatus == 200
+| project TimeGenerated, OriginalRequestUriWithArgs, TimeTaken, WafEvaluationTime, HttpStatus, Action, Message, ClientIp, RequestUri, WafMode

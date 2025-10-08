@@ -1,5 +1,0 @@
-let StartTime = ago(60m);
-let EndTime   = now();
-ApiManagementGatewayLogs
-| where TimeGenerated between (StartTime .. EndTime)
-| take 200 // safety cap during iteration
