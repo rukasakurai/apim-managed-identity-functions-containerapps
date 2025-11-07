@@ -58,7 +58,7 @@ Introduce a synthetic per-request correlation id (`rid`) as a query parameter (G
 1. Client / test harness appends `?rid=<guid>` to each HTTP request.
 2. KQL extraction:
     ```kql
-    | extend rid = tostring(extract(@"[?&]rid=([0-9a-fA-F\-]+)", 1, requestUri))
+    | extend rid = tostring(extract(@"[?&]rid=([0-9a-f]+)", 1, requestUri))
     ```
     and similarly for `RequestUrl` in APIM logs; filter `isnotempty(rid)`.
 3. Join on `rid`; enforce small time skew filter as sanity guard.
