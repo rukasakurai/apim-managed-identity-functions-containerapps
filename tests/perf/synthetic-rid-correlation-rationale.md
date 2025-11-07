@@ -84,7 +84,7 @@ Introduce a synthetic per-request correlation id (`rid`) as a query parameter (G
 
 ### Future Extensions
 
-- Adopt the same rid for injecting OpenTelemetry traceparent (backend) to unify with deeper spans (even if AGW does not log it).
+- Use the same rid when generating OpenTelemetry traceparent headers (backend) to unify with deeper spans (even if AGW does not log it).
 - Add WAF-mode comparison by reusing identical rid methodology for A/B windows.
 - Explore capturing rid in Application Insights for richer cross-table correlation (optional).
 
