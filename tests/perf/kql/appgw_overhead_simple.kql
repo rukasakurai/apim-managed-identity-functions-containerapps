@@ -1,0 +1,20 @@
+let StartTime = ago(7d);
+let EndTime   = now();
+let agw_mean_latency_ms = toscalar(
+    AGWAccessLogs
+    | where TimeGenerated between (StartTime .. EndTime)
+    | where isnotempty(TimeTaken)
+    | summarize avg(TimeTaken * 1000.0)
+);
+let apim_mean_latency_ms = toscalar(
+    ApiManagementGatewayLogs
+    | where TimeGenerated between (StartTime .. EndTime)
+    | where isnotempty(TotalTime)
+    | summarize avg(TotalTime)
+);
+print
+    agw_mean_latency_ms = agw_mean_latency_ms,
+    apim_mean_latency_ms = apim_mean_latency_ms,
+    overhead_mean_ms = agw_mean_latency_ms - apim_mean_latency_ms,
+    StartTime = StartTime,
+    EndTime = EndTime

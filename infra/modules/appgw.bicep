@@ -91,7 +91,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2024-07-01' = {
       }
 		webApplicationFirewallConfiguration: {
 			enabled: true
-			firewallMode: 'Prevention' // Decision: start strict; adjust if false positives appear when backends added.
+			firewallMode: 'Detection' // Changed from Prevention to Detection to allow tuning & observation before enforcing; revert to Prevention after baseline established.
 			ruleSetType: 'OWASP'
 			ruleSetVersion: owaspVersion // NOTE: May need update when new stable CRS released.
 		}
