@@ -194,7 +194,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2024-07-01' = {
 					path: healthProbePath
 					host: apimHostname
 					interval: 30
-					timeout: 30
+					timeout: 20
 					unhealthyThreshold: 3
 					pickHostNameFromBackendHttpSettings: false
 					match: {
