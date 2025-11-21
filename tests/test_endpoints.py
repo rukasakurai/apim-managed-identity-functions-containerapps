@@ -27,7 +27,7 @@ import subprocess
 import sys
 import uuid  # for per-request correlation id (rid) appended to query string
 from dataclasses import dataclass
-from typing import Callable, List, Optional
+from typing import List
 
 import requests
 import websockets
@@ -147,7 +147,7 @@ async def test_ws(url: str, should_succeed: bool) -> TestResult:
     name = f"WS {url} -> {'success' if should_succeed else 'fail'}"  # keep name stable (no rid) for test summary grouping
 
     max_retries_success = 2   # 2 retries (3 total attempts) for success path (e.g., cold start or transient race)
-    max_retries_failure = 1   # usually one attempt enough when we *expect* failure; we only retry on timeout
+    max_retries_failure = 1   # 1 retry (2 total attempts) when we *expect* failure; we only retry on timeout
     base_open_timeout = 15
 
     async def classify_exception(ex: Exception) -> TestResult:
