@@ -146,7 +146,7 @@ async def test_ws(url: str, should_succeed: bool) -> TestResult:
     traced_url = f"{url}{separator}rid={rid}"
     name = f"WS {url} -> {'success' if should_succeed else 'fail'}"  # keep name stable (no rid) for test summary grouping
 
-    max_retries_success = 2   # retry once for success path (e.g., cold start or transient race)
+    max_retries_success = 2   # 2 retries (3 total attempts) for success path (e.g., cold start or transient race)
     max_retries_failure = 1   # usually one attempt enough when we *expect* failure; we only retry on timeout
     base_open_timeout = 15
 
