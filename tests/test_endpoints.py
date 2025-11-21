@@ -27,7 +27,7 @@ import subprocess
 import sys
 import uuid  # for per-request correlation id (rid) appended to query string
 from dataclasses import dataclass
-from typing import Callable, List, Optional
+from typing import List
 
 import requests
 import websockets
