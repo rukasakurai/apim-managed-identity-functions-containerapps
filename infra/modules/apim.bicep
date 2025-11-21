@@ -22,6 +22,10 @@ param skuName string = 'StandardV2'
 @description('APIM SKU capacity')
 param skuCapacity int = 1
 
+@description('Log Analytics workspace resource ID for APIM diagnostics')
+@minLength(1)
+param logAnalyticsWorkspaceId string
+
 // Variables
 var uniqueSuffix = substring(uniqueString(resourceGroup().id), 0, 6)
 var resourceToken = '${resourcePrefix}-${environmentName}-${uniqueSuffix}'
@@ -59,6 +63,37 @@ resource apimService 'Microsoft.ApiManagement/service@2024-05-01' = {
       'Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls11': 'false'
       'Microsoft.WindowsAzure.ApiManagement.Gateway.Protocols.Server.Http2': 'true'
     }
+  }
+}
+
+// NOTE: Using 2021-05-01-preview for diagnosticSettings because we need:
+// - logAnalyticsDestinationType = 'Dedicated' for resource-specific tables
+// GA (2016-09-01) lacks these capability.
+resource apimGatewayDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: '${resourceToken}-apim-gateway-logs'
+  scope: apimService
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    // Explicitly route to resource-specific ("Dedicated") tables (e.g. ApiManagementGatewayLogs)
+    logAnalyticsDestinationType: 'Dedicated'
+    logs: [
+      {
+        category: 'GatewayLogs'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+      {
+        category: 'WebSocketConnectionLogs'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+    ]
   }
 }
 

@@ -1,0 +1,3 @@
+AGWFirewallLogs
+| where ClientIp == "138.64.71.155"
+| project TimeGenerated, ClientIp, RequestUri, Message, Action

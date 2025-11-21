@@ -48,8 +48,17 @@ param websocketPort int = 8080
 // Variables
 var apimServiceName = deployApim ? apimModule.outputs.apimServiceName : existingApimServiceName
 
+// Deploy platform module (provisions Log Analytics workspace)
+module platformModule 'modules/platform.bicep' = {
+  name: 'platform-deployment'
+  params: {
+    resourcePrefix: resourcePrefix
+    location: location
+  }
+}
+
 // Deploy APIM module
-module apimModule 'modules/apim/main.bicep' = if (deployApim) {
+module apimModule 'modules/apim.bicep' = if (deployApim) {
   name: 'apim-deployment'
   params: {
     resourcePrefix: resourcePrefix
@@ -57,11 +66,12 @@ module apimModule 'modules/apim/main.bicep' = if (deployApim) {
     environmentName: environmentName
     publisherEmail: publisherEmail
     publisherName: publisherName
+    logAnalyticsWorkspaceId: platformModule.outputs.logAnalyticsWorkspaceId
   }
 }
 
 // Deploy Functions module
-module functionsModule 'modules/functions/main.bicep' = if (deployFunctions) {
+module functionsModule 'modules/functions.bicep' = if (deployFunctions) {
   name: 'functions-deployment'
   params: {
     resourcePrefix: resourcePrefix
@@ -72,7 +82,7 @@ module functionsModule 'modules/functions/main.bicep' = if (deployFunctions) {
 }
 
 // Integrate Functions with APIM
-module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = if (integrateFunctionsWithApim && deployFunctions && (deployApim || existingApimServiceName != '')) {
+module functionsApimIntegration 'modules/apim-backend-integration.bicep' = if (integrateFunctionsWithApim && deployFunctions && (deployApim || existingApimServiceName != '')) {
   name: 'functions-apim-integration'
   params: {
     apimServiceName: apimServiceName
@@ -89,17 +99,8 @@ module functionsApimIntegration 'modules/apim-backend-integration/main.bicep' = 
   }
 }
 
-// Deploy platform module (provisions Log Analytics workspace)
-module platformModule 'modules/platform/main.bicep' = {
-  name: 'platform-deployment'
-  params: {
-    resourcePrefix: resourcePrefix
-    location: location
-  }
-}
-
 // Deploy WebSocket App module
-module websocketAppModule 'modules/container-apps/main.bicep' = if (deployWebsocketApp) {
+module websocketAppModule 'modules/container-apps.bicep' = if (deployWebsocketApp) {
   name: 'websocket-app-deployment'
   params: {
     resourcePrefix: resourcePrefix
@@ -112,6 +113,33 @@ module websocketAppModule 'modules/container-apps/main.bicep' = if (deployWebsoc
     containerRegistryName: platformModule.outputs.acrName
     websocketPort: websocketPort
     containerAppsAuthAppId: containerAppsAuthAppId
+  }
+}
+
+// ---------------------------------------------
+// ---------------------------------------------
+// Application Gateway (WAF) deployment
+// Simplicity choice: no feature flag; network + gateway always provisioned.
+// ---------------------------------------------
+module networkModule 'modules/network.bicep' = {
+  name: 'network-deployment'
+  params: {
+    resourcePrefix: resourcePrefix
+    environmentName: environmentName
+    location: location
+  }
+}
+
+module appGatewayModule 'modules/appgw.bicep' = {
+  name: 'app-gateway-deployment'
+  params: {
+    resourcePrefix: resourcePrefix
+    environmentName: environmentName
+    location: location
+    appGatewaySubnetId: networkModule.outputs.appGatewaySubnetId
+    logAnalyticsWorkspaceId: platformModule.outputs.logAnalyticsWorkspaceId
+    // Derive public APIM gateway hostname (future decision: support custom domain or internal mode)
+    apimHostname: '${apimServiceName}.azure-api.net'
   }
 }
 
@@ -179,8 +207,23 @@ output websocketAppFqdn string = deployWebsocketApp ? websocketAppModule.outputs
 @description('WebSocket App URL')
 output websocketAppUrl string = deployWebsocketApp ? websocketAppModule.outputs.websocketAppUrl : ''
 
+@description('Application Gateway public FQDN')
+output appGatewayFqdn string = appGatewayModule.outputs.appGatewayFqdn
+
+@description('Application Gateway public IP')
+output appGatewayPublicIp string = appGatewayModule.outputs.publicIpAddress
+
+@description('Application Gateway resource Id')
+output appGatewayId string = appGatewayModule.outputs.appGatewayId
+
 @description('Azure Container Registry endpoint for azd')
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = platformModule.outputs.acrLoginServer
 
 @description('ACR resource id')
 output acrResourceId string = platformModule.outputs.acrResourceId
+
+@description('Log Analytics Workspace resource ID (for scripts & integration)')
+output logAnalyticsWorkspaceId string = platformModule.outputs.logAnalyticsWorkspaceId
+
+@description('Log Analytics Workspace customer (workspace) ID GUID')
+output logAnalyticsWorkspaceCustomerId string = platformModule.outputs.logAnalyticsWorkspaceCustomerId
