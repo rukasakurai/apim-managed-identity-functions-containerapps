@@ -4,6 +4,8 @@
 >
 > Goal: Derive a deterministic join key between AGW and APIM diagnostic log tables using platform‑emitted identifiers so we can compute per‑request overhead distribution (p50 / p90 / p99) with minimal operational friction.
 
+> ⚠️ **Warning**: This repository, and section is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns. Before using any concepts, approaches, code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
+
 ## Rationale (Why This Approach)
 - **Zero client changes**: Relies only on enabling diagnostic categories; no query parameter (`rid`) or header adornment needed.
 - **Deterministic pairing**: Uses AGW `transactionId` and APIM surface of the same identifier via the `x-appgw-trace-id` request header (exposed in APIM gateway logs once included in diagnostic logging).

@@ -1,6 +1,7 @@
 # Overview
 Goal: obtain per-request latency correlation (App Gateway → APIM → backend) to measure gateway-added overhead.
 
+> ⚠️ **Warning**: This repository, and section is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns. Before using any concepts, approaches, code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
 
 # Approaches
 Table compares accuracy, feasibility, required traffic changes, and analysis effort; fallback methods kept only for sanity checks.

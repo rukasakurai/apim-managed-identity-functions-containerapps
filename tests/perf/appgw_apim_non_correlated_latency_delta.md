@@ -4,6 +4,8 @@ This folder contains quick Kusto (KQL) scripts to perform a **directional** (app
 
 > Goal: Validate telemetry plumbing and obtain a first-order mean latency delta. Not a precise per-request overhead measurement.
 
+> ⚠️ **Warning**: This repository, and section is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns. Before using any concepts, approaches, code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
+
 ### Files
 
 - `appgw_overhead_simple.kql` – single, beginner‑friendly query that computes a **mean vs mean** latency delta between Application Gateway access logs (`AGWAccessLogs`) and APIM gateway logs (`ApiManagementGatewayLogs`).

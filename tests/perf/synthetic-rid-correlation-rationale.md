@@ -2,6 +2,8 @@
 
 > Related helper artifacts: `appgw_slice.kql` (App Gateway slice), `apimgw_slice.kql` (APIM slice), `appgw_overhead.kql` (union placeholder prior to join/overhead math), and `run-appgw-overhead.sh` (shell wrapper to execute a KQL file). These are early experimental helpers and have not been deeply tested yet.
 
+> ⚠️ **Warning**: This repository, and section is for demonstration purposes only and should not be considered production-ready. It is designed to showcase concepts and patterns. Before using any concepts, approaches, code or configurations in a production environment, please review and adapt them according to your organization's security, compliance, and operational requirements.
+
 ## Synthetic Request Correlation ID (rid) Rationale
 
 > Goal: Measure end-to-end latency overhead introduced by inserting Application Gateway (AGW) in front of API Management (APIM) with statistically trustworthy per-request pairing (p50/p90/p99). We need a deterministic join key present in *both* `AGWAccessLogs` and `ApiManagementGatewayLogs`.
