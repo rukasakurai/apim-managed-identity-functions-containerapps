@@ -4,17 +4,10 @@
 
 > **Note**: Container Apps integration is currently work in progress. The infrastructure modules exist but are not yet integrated into the main deployment pipeline. The current implementation focuses on APIM + Azure Functions integration.
 
-This repository demonstrates how to securely expose Azure Functions and other backends behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication. It provides a **modular, lifecycle-aware solution** for:
-
-- **Independent deployment** of APIM and backend services
-- **Flexible integration** patterns for connecting backends to shared APIM instances
-- **Secure authentication** using Entra ID app registrations and managed identities
-- **Automated setup** with infrastructure-as-code (Bicep) and deployment scripts
-- **Extensible architecture** ready for future backend types
-
-## Deployment Scenarios
-
-This repository supports multiple deployment patterns. See [DEPLOYMENT-SCENARIOS.md](./docs/DEPLOYMENT-SCENARIOS.md) for detailed scenarios.
+This repository demonstrates how to 
+- expose Azure Functions and other backends behind Azure API Management (APIM) using managed identities and Microsoft Entra ID authentication
+- expose API Management through Application Gateway
+- measure latency added by Application Gateway
 
 ## Quick Start
 
